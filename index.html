@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="MISS KOUYATE SHOP — application de gestion de boutique : ventes, dépenses, stock de gaz, bénéfices et rentabilité par activité.">
+<meta name="theme-color" content="#0d9488">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MISS KOUYATE SHOP — Gestion de boutique</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+<style>
+:root{--bg:#f2f4f7;--card:#fff;--ink:#1b2430;--mut:#64748b;--line:#e5e9f0;--pri:#e8590c;--pri2:#c2410c;--tea:#0d9488;--grn:#16a34a;--red:#dc2626;--blu:#2563eb;--amb:#d97706;--rad:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:80px;font-size:15px;line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding:0 12px 16px}
+@media(min-width:900px){.wrap{max-width:1080px}}
+header.top{position:sticky;top:0;z-index:30;background:linear-gradient(135deg,#0d9488,#0f766e);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+header.top .t1{font-weight:800;font-size:17px}
+header.top .t2{font-size:12px;opacity:.88}
+h2.sec{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:14px;margin-bottom:10px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:900px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:12px}
+.kpi .l{font-size:11px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.kpi .v{font-size:19px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums;word-break:break-word}
+.kpi .s{font-size:11.5px;color:var(--mut);margin-top:2px}
+.v.good{color:var(--grn)}.v.bad{color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;background:#fff;color:var(--ink);border:1px solid var(--line);min-height:46px;font-family:inherit}
+.btn:active{transform:scale(.98)}
+.btn-pri{background:var(--pri);color:#fff;border-color:var(--pri)}
+.btn-pri:active{background:var(--pri2)}
+.btn-ghost{background:#f1f5f9;border-color:transparent;color:#334155}
+.btn-danger{background:#fee2e2;color:#b91c1c;border-color:#fecaca}
+.btn-sm{padding:8px 12px;font-size:13.5px;min-height:38px;border-radius:10px}
+.btn-block{width:100%}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer;color:#475569;font-family:inherit}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tblwrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{color:var(--mut);font-weight:700;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:11px;text-transform:uppercase;white-space:nowrap}
+.tbl td{padding:8px;border-bottom:1px solid #eef1f5}
+.tbl tr:last-child td{border-bottom:none}
+.row{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #eef1f5;align-items:center}
+.row:last-child{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-esp{background:#dcfce7;color:#15803d}.b-mm{background:#dbeafe;color:#1d4ed8}.b-cred{background:#ffedd5;color:#c2410c}
+.pill{display:inline-block;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700}
+nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom button{flex:1;background:none;border:none;padding:8px 0 6px;font-size:10.5px;color:#64748b;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit}
+nav.bottom button .ico{font-size:20px}
+nav.bottom button.on{color:var(--tea);font-weight:800}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:60;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+@media(min-width:640px){.overlay{align-items:center}}
+.sheet{background:#fff;width:100%;max-width:640px;border-radius:18px 18px 0 0;max-height:90vh;overflow:auto;display:flex;flex-direction:column;animation:up .18s}
+@media(min-width:640px){.sheet{border-radius:18px;max-height:86vh}}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+.sheet-head h3{margin:0;font-size:16px;flex:1}
+.icon-btn{background:#f1f5f9;border:none;border-radius:50%;width:34px;height:34px;font-size:15px;cursor:pointer;color:#475569;flex:none}
+.sheet-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.sheet-foot{padding:12px 16px 16px;border-top:1px solid var(--line);display:flex;gap:10px}
+.sheet-foot .btn{flex:1}
+.field label{display:block;font-size:12.5px;font-weight:700;color:#475569;margin-bottom:5px}
+.inp{width:100%;border:1px solid #d0d5dd;border-radius:10px;padding:11px 12px;font-size:16px;background:#fff;color:var(--ink);font-family:inherit}
+.inp:focus{outline:2px solid #99f6e4;border-color:var(--tea)}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 6px;font-size:13px;font-weight:700;cursor:pointer;color:#475569;font-family:inherit}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:700px){.prod-grid{grid-template-columns:repeat(3,1fr)}}
+.prod{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;text-align:left;font-size:14px;font-family:inherit}
+.prod:active{transform:scale(.98);border-color:var(--tea)}
+.prod .n{font-weight:700}
+.prod .p{color:var(--pri);font-weight:800;font-size:15px;margin-top:2px}
+.prod .k{font-size:10.5px;color:var(--mut);margin-top:3px}
+.qty-ctl{display:flex;align-items:center;gap:8px}
+.qty-ctl button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:20px;font-weight:700;cursor:pointer;flex:none;color:var(--ink)}
+.qty-ctl .inp{text-align:center;font-weight:800}
+.list-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eef1f5}
+.list-item:last-child{border-bottom:none}
+.del{background:none;border:none;color:#cbd5e1;font-size:16px;cursor:pointer;padding:4px;flex:none;font-family:inherit}
+.del:active{color:var(--red)}
+.empty{text-align:center;color:var(--mut);padding:26px 10px;font-size:14px}
+.empty .e{font-size:34px;display:block;margin-bottom:6px}
+.date-head{font-weight:800;font-size:12.5px;color:var(--mut);margin:12px 0 2px;text-transform:capitalize}
+.hint{font-size:12.5px;color:var(--mut)}
+.alert{display:flex;gap:8px;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:8px}
+.alert.ok{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:100;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:92vw;text-align:center;animation:tin .2s}
+@keyframes up{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes tin{from{opacity:0;margin-top:-8px}to{opacity:1;margin-top:0}}
+.chart{display:flex;align-items:flex-end;gap:6px;height:110px;padding-top:6px}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.chart .bar{width:100%;max-width:46px;background:linear-gradient(180deg,#2dd4bf,#0d9488);border-radius:6px 6px 2px 2px;min-height:3px}
+.chart .lab{font-size:10px;color:var(--mut);font-weight:700}
+.chart .val{font-size:9.5px;color:var(--mut)}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.menu-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 10px;cursor:pointer;text-align:center;font-family:inherit}
+.menu-item .e{font-size:28px}
+.menu-item .n{font-weight:800;margin-top:6px;font-size:14px}
+.menu-item .d{font-size:11.5px;color:var(--mut);margin-top:2px}
+.backbtn{background:none;border:none;font-size:14px;font-weight:700;color:var(--tea);cursor:pointer;padding:4px 0;margin-bottom:8px;font-family:inherit}
+textarea.inp{font-family:ui-monospace,monospace;min-height:130px;font-size:11.5px;line-height:1.4}
+.warn-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px}
+.warn-dot.low{background:#f59e0b}.warn-dot.high{background:#ef4444}
+.plus-btn{position:sticky;bottom:86px;z-index:25;display:flex;justify-content:flex-end;pointer-events:none}
+.plus-btn .fab{pointer-events:auto;background:var(--pri);color:#fff;border:none;border-radius:999px;padding:14px 20px;font-size:15px;font-weight:800;box-shadow:0 6px 18px rgba(234,88,12,.45);cursor:pointer;font-family:inherit}
+.small-txt{font-size:12px;color:var(--mut)}
+/* ============ AMÉLIORATIONS UX : professionnel & fluide ============ */
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+main#view{animation:viewIn .22s ease}
+@keyframes viewIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.card{box-shadow:0 1px 2px rgba(16,24,40,.05);transition:box-shadow .18s ease}
+.btn{transition:transform .08s ease,background .18s ease,box-shadow .18s ease}
+.btn:active{transform:scale(.97)}
+.chip{transition:background .15s ease,color .15s ease,border-color .15s ease}
+.menu-item{transition:transform .1s ease,box-shadow .18s ease;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.menu-item:active{transform:scale(.97)}
+nav.bottom{box-shadow:0 -2px 14px rgba(16,24,40,.08)}
+nav.bottom button{transition:color .15s ease}
+nav.bottom button .ico{transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+nav.bottom button.on .ico{transform:scale(1.18)}
+.overlay{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.sheet{box-shadow:0 -10px 34px rgba(16,24,40,.22)}
+.toast{animation:tin .25s ease;box-shadow:0 8px 24px rgba(16,24,40,.28)}
+.kpi{transition:transform .12s ease}
+.kpi:active{transform:scale(.98)}
+:focus-visible{outline:2px solid #0d9488;outline-offset:2px}
+@media (hover:hover){
+ .btn:hover{box-shadow:0 2px 8px rgba(16,24,40,.14)}
+ .btn-pri:hover{background:var(--pri2)}
+ .btn-ghost:hover{background:#e2e8f0}
+ .card:hover{box-shadow:0 2px 10px rgba(16,24,40,.08)}
+ .menu-item:hover{box-shadow:0 4px 14px rgba(16,24,40,.12)}
+ .chip:hover{border-color:var(--tea);color:var(--tea)}
+}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+/* ============ CODE D'ACCÈS (PIN) ============ */
+.lock-ov{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,#0d9488,#0f766e);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s}
+.lock-box{background:#fff;border-radius:20px;padding:24px 20px;text-align:center;width:100%;max-width:330px;box-shadow:0 18px 50px rgba(0,0,0,.3);animation:up .25s}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-top:6px}
+.pin-dot{width:15px;height:15px;border-radius:50%;border:2px solid #cbd5e1;background:#fff;transition:all .12s ease}
+.pin-dot.on{background:var(--tea);border-color:var(--tea);transform:scale(1.12)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.pin-key{height:52px;border-radius:14px;border:1px solid var(--line);background:#f8fafc;font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink)}
+.pin-key:active{background:#e2e8f0;transform:scale(.96)}
+@media print{
+ nav.bottom,header.top,.no-print,.plus-btn,.del,.fab{display:none!important}
+ #print-root{display:block!important}
+ body{padding:0;background:#fff}
+ .wrap{max-width:100%;padding:0}
+}
+#print-root{display:none}
+</style>
+</head>
+<body>
+<header class="top">
+ <div><div class="t1" id="bizname">Ma Boutique</div><div class="t2" id="today"></div></div>
+ <div style="font-size:22px">🛒</div>
+</header>
+<main id="view" class="wrap"></main>
+<nav class="bottom">
+ <button id="nav-home" onclick="go('home')"><span class="ico">🏠</span>Accueil</button>
+ <button id="nav-ventes" onclick="go('ventes')"><span class="ico">💰</span>Ventes</button>
+ <button id="nav-depenses" onclick="go('depenses')"><span class="ico">🧾</span>Dépenses</button>
+ <button id="nav-stock" onclick="go('stock')"><span class="ico">📦</span>Stock</button>
+ <button id="nav-plus" onclick="go('plus')"><span class="ico">☰</span>Menu</button>
+</nav>
+<div id="lock-root"></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<div id="print-root"></div>
+<script>
+'use strict';
+/* ============================ Utilitaires ============================ */
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function money(n){n=Math.round(Number(n)||0);return n.toLocaleString('fr-FR')+' F'}
+function fmtQty(q){q=Math.round(Number(q)*10)/10;return q.toLocaleString('fr-FR')}
+function num(v){const x=parseFloat(String(v==null?'':v).replace(/\s/g,'').replace(',','.'));return isNaN(x)?0:x}
+function dISO(d){d=d||new Date();const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+function fmtD(iso){if(!iso)return'';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function fmtDL(iso){if(!iso)return'';try{return new Date(iso+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}catch(e){return fmtD(iso)}}
+function fmtTime(ts){try{return new Date(ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}catch(e){return''}}
+const uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)};
+/* Stockage : localStorage si possible, sinon mémoire (aperçu navigateur) */
+let mem={};
+const store=(function(){try{const k='__t__';localStorage.setItem(k,'1');localStorage.removeItem(k);return localStorage}catch(e){return{getItem:function(k){return (k in mem)?mem[k]:null},setItem:function(k,v){mem[k]=String(v)},removeItem:function(k){delete mem[k]}}}})();
+const KEY='gboutique_v1';
+function save(){try{store.setItem(KEY,JSON.stringify(DB))}catch(e){toast('⚠️ Sauvegarde automatique impossible ici')}scheduleSync()}
+
+/* ============================ Données ============================ */
+function seed(){
+ return {
+  v:1,
+  settings:{businessName:'MISS KOUYATE SHOP',seuilPleines:3,seuilVides:12,consignes:{B6:10000,'B12.5':15000,B15:20000,B25:30000},prixAchat:{B6:2400,'B12.5':6600,B15:9000,B25:15000},welcomeDone:false,alloc:'sales'},
+  activities:[
+   {id:'g1',name:'Magasin de gaz 1',type:'gaz'},
+   {id:'g2',name:'Magasin de gaz 2',type:'gaz'},
+   {id:'f1',name:'Poisson & poulet braisés',type:'food'},
+   {id:'m1',name:'Repas sur commande',type:'food'},
+   {id:'gen',name:'Général (commun)',type:'gen'}
+  ],
+  products:[
+   {id:'p1',act:'g1',name:'Recharge B6',price:2500,kind:'recharge',size:'B6'},
+   {id:'p2',act:'g1',name:'Recharge B12.5',price:7000,kind:'recharge',size:'B12.5'},
+   {id:'p3',act:'g1',name:'Bouteille B6 (vente définitive)',price:12500,kind:'definitive',size:'B6'},
+   {id:'p4',act:'g1',name:'Bouteille B12.5 (vente définitive)',price:22000,kind:'definitive',size:'B12.5'},
+   {id:'p5',act:'g1',name:'Accessoires (détendeur, tuyau…)',price:3000,kind:'normal'},
+   {id:'p6',act:'g2',name:'Recharge B6',price:2500,kind:'recharge',size:'B6'},
+   {id:'p7',act:'g2',name:'Recharge B12.5',price:7000,kind:'recharge',size:'B12.5'},
+   {id:'p8',act:'g2',name:'Bouteille B6 (vente définitive)',price:12500,kind:'definitive',size:'B6'},
+   {id:'p9',act:'g2',name:'Bouteille B12.5 (vente définitive)',price:22000,kind:'definitive',size:'B12.5'},
+   {id:'p10',act:'g2',name:'Accessoires (détendeur, tuyau…)',price:3000,kind:'normal'},
+   {id:'p11',act:'f1',name:'Poisson braisé',price:3000,kind:'normal'},
+   {id:'p12',act:'f1',name:'Poulet braisé',price:4500,kind:'normal'},
+   {id:'p13',act:'f1',name:'Poisson + attiéké',price:3500,kind:'normal'},
+   {id:'p14',act:'f1',name:'Poulet + attiéké',price:5000,kind:'normal'},
+   {id:'p15',act:'f1',name:'Boisson',price:500,kind:'normal'},
+   {id:'p16',act:'m1',name:'Plat du jour',price:1500,kind:'normal'},
+   {id:'p17',act:'m1',name:'Repas amélioré',price:2500,kind:'normal'},
+   {id:'p18',act:'m1',name:'Repas événement / fête',price:3000,kind:'normal'},
+   {id:'p19',act:'m1',name:'Boisson',price:500,kind:'normal'}
+  ],
+  cats:['Achat gaz','Achat bouteilles','Achat poisson','Achat poulet','Achat ingrédients','Charbon','Transport','Électricité','Eau','Loyer','Salaire','Taxe & patente','Emballage','Autre'],
+  stockGaz:{},
+  stockFood:{
+   f1:[{id:'i1',name:'Poisson',unit:'kg',qty:0},{id:'i2',name:'Poulet',unit:'pièce',qty:0},{id:'i3',name:'Charbon',unit:'sac',qty:0},{id:'i4',name:'Huile',unit:'litre',qty:0},{id:'i5',name:'Attiéké',unit:'kg',qty:0},{id:'i6',name:'Emballage',unit:'paquet',qty:0}],
+   m1:[{id:'i7',name:'Riz',unit:'kg',qty:0},{id:'i8',name:'Poisson',unit:'kg',qty:0},{id:'i9',name:'Poulet',unit:'pièce',qty:0},{id:'i10',name:'Huile',unit:'litre',qty:0},{id:'i11',name:'Tomate',unit:'panier',qty:0},{id:'i12',name:'Oignon',unit:'kg',qty:0}]
+  },
+  sales:[],expenses:[],cautions:[],payments:[],supplierCautions:[],moves:[],log:[]
+ };
+}
+function normalizeDb(data){
+ const S=seed();
+ if(!data||typeof data.v!=='number')data=seed();
+ if(!data.settings)data.settings=S.settings;
+ if(data.settings.businessName==='Ma Boutique')data.settings.businessName='MISS KOUYATE SHOP';
+ if(!data.settings.alloc)data.settings.alloc='sales';
+ if(!data.settings.sync)data.settings.sync={url:'',key:'',pass:''};
+ data.settings.consignes=Object.assign({},S.settings.consignes,data.settings.consignes||{});
+ data.settings.prixAchat=Object.assign({},S.settings.prixAchat,data.settings.prixAchat||{});
+ const legacyNames={'Bouteille B6 (client sans bouteille)':'Bouteille B6 (vente définitive)','Bouteille B12.5 (client sans bouteille)':'Bouteille B12.5 (vente définitive)','Bouteille B6 + consigne':'Bouteille B6 (vente définitive)','Bouteille B12.5 + consigne':'Bouteille B12.5 (vente définitive)'};
+ data.products.forEach(function(p){if(p.kind==='bouteille'&&legacyNames[p.name]){p.kind='definitive';p.name=legacyNames[p.name];delete p.deposit}});
+ if(!Array.isArray(data.cats)||!data.cats.length)data.cats=S.cats;
+ if(!data.stockGaz)data.stockGaz={};
+ if(!data.stockFood)data.stockFood={};
+ if(!Array.isArray(data.sales))data.sales=[];
+ if(!Array.isArray(data.expenses))data.expenses=[];
+ if(!Array.isArray(data.cautions))data.cautions=[];
+ if(!Array.isArray(data.payments))data.payments=[];
+ if(!Array.isArray(data.supplierCautions))data.supplierCautions=[];
+ if(!Array.isArray(data.moves))data.moves=[];
+ if(!Array.isArray(data.log))data.log=[];
+ return data;
+}
+let DB=null;
+(function initDB(){
+ let parsed=null;
+ try{parsed=JSON.parse(store.getItem(KEY)||'null')}catch(e){parsed=null}
+ const hadMoves=!!(parsed&&Array.isArray(parsed.moves));
+ DB=normalizeDb(parsed);
+ try{if(!hadMoves&&(DB.sales.length||DB.supplierCautions.length)){DB.moves=rebuildMoves();save()}}catch(e){DB.moves=DB.moves||[]}
+})();
+
+/* ============================ Helpers ============================ */
+function actById(id){return DB.activities.find(function(a){return a.id===id})}
+function actName(id){const a=actById(id);return a?a.name:'—'}
+function bizActs(){return DB.activities.filter(function(a){return a.type!=='gen'})}
+function gazActs(){return DB.activities.filter(function(a){return a.type==='gaz'})}
+function foodActs(){return DB.activities.filter(function(a){return a.type==='food'})}
+function prodsOf(act){return DB.products.filter(function(p){return p.act===act})}
+function prodById(id){return DB.products.find(function(p){return p.id===id})}
+function actColor(act){const i=DB.activities.findIndex(function(a){return a.id===act});const pal=['#0d9488','#2563eb','#d97706','#9333ea','#475569','#0891b2','#be185d'];return pal[((i%7)+7)%7]}
+function sizes(){return Object.keys(DB.settings.consignes)}
+function stockOf(act,size){if(!DB.stockGaz[act])DB.stockGaz[act]={};if(!DB.stockGaz[act][size])DB.stockGaz[act][size]={pleines:0,vides:0,cons:0};return DB.stockGaz[act][size]}
+function applyEf(eff,mult){if(!eff)return;const st=stockOf(eff.act,eff.size);st.pleines+=eff.p*mult;st.vides+=eff.v*mult;st.cons+=eff.c*mult}
+function clampStock(act,size){const st=DB.stockGaz[act]&&DB.stockGaz[act][size];if(!st)return;st.pleines=Math.max(0,st.pleines);st.vides=Math.max(0,st.vides);st.cons=Math.max(0,st.cons)}
+/* ============================ MOUVEMENTS DE STOCK ============================ */
+const MOVE_LABELS={
+ 'vente-recharge':['💰 Vente recharge (échange)','b-esp'],
+ 'vente-bouteille':['🧾 Vente avec bouteille','b-cred'],
+ 'vente-definitive':['🧾 Vente bouteille définitive','b-cred'],
+ 'chargement':['🛢 Chargement','b-mm'],
+ 'retour-client':['↩️ Retour consigne client','b-esp'],
+ 'achat-vides':['🧺 Achat bouteilles vides','b-mm'],
+ 'ajustement':['✏️ Ajustement','pill'],
+ 'consignation-in':['🏭 Consignation fournisseur','b-cred'],
+ 'consignation-out':['🏭 Restitution consignation','b-esp'],
+ 'perte':['🔥 Perte / casse','b-cred'],
+ 'annulation-vente':['↩️ Annulation vente','pill'],
+ 'annulation-chargement':['↩️ Annulation chargement','pill'],
+ 'annulation-consignation':['↩️ Annulation consignation','pill'],
+ 'annulation-retour':['↩️ Annulation retour consigne','pill']
+};
+function moveBadge(type){const t=MOVE_LABELS[type]||[type,'pill'];return '<span class="badge '+t[1]+'">'+t[0]+'</span>'}
+function moveLabel(type){return (MOVE_LABELS[type]||[type])[0]}
+function addMove(act,size,type,dp,dv,dc,label,note){
+ if(!size)return;
+ const st=stockOf(act,size);
+ DB.moves.unshift({id:uid(),ts:Date.now(),date:dISO(),act:act,size:size,type:type,dp:dp,dv:dv,dc:dc,p:st.pleines,v:st.vides,c:st.cons,label:label||'',note:note||''});
+ DB.moves=DB.moves.slice(0,2000);
+}
+function cautStockDelta(c,mult){
+ if(!c||!c.qty||c.via==='chargement')return null;
+ const d=((c.type==='in'?c.qty:-c.qty))*mult;
+ return {act:c.act,size:c.size,state:c.state||'vides',d:d};
+}
+function applyCautStock(c,mult){
+ const d=cautStockDelta(c,mult);
+ if(!d)return null;
+ const st=stockOf(d.act,d.size);
+ if(d.state==='pleines')st.pleines+=d.d;else st.vides+=d.d;
+ clampStock(d.act,d.size);
+ return d;
+}
+/* Reconstruit l'historique des mouvements à partir des ventes, dépenses et consignations existantes */
+function rebuildMoves(){
+ const scratch={};
+ const evs=[];
+ DB.sales.forEach(function(s){if(s.effects&&s.effects.size)evs.push({ts:s.ts,kind:'sale',data:s})});
+ DB.expenses.forEach(function(e){if(e.effects&&e.effects.size)evs.push({ts:e.ts,kind:'exp',data:e})});
+ DB.supplierCautions.forEach(function(c){if(c.qty&&c.via!=='chargement'&&c.act&&c.size)evs.push({ts:c.ts,kind:'caut',data:c})});
+ evs.sort(function(a,b){return a.ts-b.ts});
+ const moves=[];
+ evs.forEach(function(ev){
+  if(ev.kind==='sale'){
+   const s=ev.data;
+   if(!scratch[s.effects.act])scratch[s.effects.act]={};
+   const st=scratch[s.effects.act][s.effects.size]=scratch[s.effects.act][s.effects.size]||{pleines:0,vides:0,cons:0};
+   st.pleines+=s.effects.p;st.vides+=s.effects.v;st.cons+=s.effects.c;
+   st.pleines=Math.max(0,st.pleines);st.vides=Math.max(0,st.vides);st.cons=Math.max(0,st.cons);
+   moves.push({ts:s.ts,date:s.date,act:s.effects.act,size:s.effects.size,type:(s.kind==='definitive')?'vente-definitive':(s.effects.c>0?'vente-bouteille':'vente-recharge'),dp:s.effects.p,dv:s.effects.v,dc:s.effects.c,p:st.pleines,v:st.vides,c:st.cons,label:s.name,note:s.client||''});
+  }else if(ev.kind==='exp'){
+   const e=ev.data;
+   if(!scratch[e.effects.act])scratch[e.effects.act]={};
+   const st=scratch[e.effects.act][e.effects.size]=scratch[e.effects.act][e.effects.size]||{pleines:0,vides:0,cons:0};
+   st.pleines+=e.effects.p;st.vides+=e.effects.v;st.cons+=e.effects.c;
+   st.pleines=Math.max(0,st.pleines);st.vides=Math.max(0,st.vides);st.cons=Math.max(0,st.cons);
+   moves.push({ts:e.ts,date:e.date,act:e.effects.act,size:e.effects.size,type:e.effects.p>0?'chargement':'achat-vides',dp:e.effects.p,dv:e.effects.v,dc:e.effects.c,p:st.pleines,v:st.vides,c:st.cons,label:e.label||e.cat,note:e.note||''});
+  }else if(ev.kind==='caut'){
+   const c=ev.data;
+   if(!scratch[c.act])scratch[c.act]={};
+   const st=scratch[c.act][c.size]=scratch[c.act][c.size]||{pleines:0,vides:0,cons:0};
+   const d=c.type==='in'?c.qty:-c.qty;
+   if(c.state==='pleines')st.pleines+=d;else st.vides+=d;
+   st.pleines=Math.max(0,st.pleines);st.vides=Math.max(0,st.vides);
+   moves.push({ts:c.ts,date:c.date,act:c.act,size:c.size,type:c.type==='in'?'consignation-in':'consignation-out',dp:c.state==='pleines'?d:0,dv:c.state==='vides'?d:0,dc:0,p:st.pleines,v:st.vides,c:st.cons,label:c.supplier||'Fournisseur',note:c.note||''});
+ }
+ });
+ moves.reverse();
+ return moves.slice(0,2000);
+}
+function logStock(act,text){DB.log.unshift({ts:Date.now(),act:act,text:text});DB.log=DB.log.slice(0,60)}
+function clientNames(){const m={};DB.sales.forEach(function(s){if(s.client)m[s.client]=1});DB.payments.forEach(function(p){if(p.client)m[p.client]=1});return Object.keys(m)}
+function knownSuppliers(){const m={};DB.supplierCautions.forEach(function(c){if(c.supplier)m[c.supplier]=1});return Object.keys(m)}
+function payLabel(p){return p==='esp'?'Espèces':(p==='mm'?'Mobile Money':'Crédit')}
+function payBadge(p){if(p==='esp')return '<span class="badge b-esp">Espèces</span>';if(p==='mm')return '<span class="badge b-mm">Mobile Money</span>';return '<span class="badge b-cred">Crédit</span>'}
+function kindLabel(k){return k==='recharge'?'Recharge (client apporte sa bouteille)':(k==='definitive'?'Vente bouteille définitive (sort du stock)':(k==='bouteille'?'Ancienne vente avec consigne':'Vente simple'))}
+
+/* ============================ Périodes & stats ============================ */
+function rangeFor(p){
+ const now=new Date();let a=new Date(now),b=new Date(now);
+ if(p==='day'){}
+ else if(p==='yesterday'){a=b=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1)}
+ else if(p==='week'){const d=(now.getDay()+6)%7;a=new Date(now.getFullYear(),now.getMonth(),now.getDate()-d)}
+ else if(p==='month'){a=new Date(now.getFullYear(),now.getMonth(),1);b=new Date(now.getFullYear(),now.getMonth()+1,0)}
+ else if(p==='lastmonth'){a=new Date(now.getFullYear(),now.getMonth()-1,1);b=new Date(now.getFullYear(),now.getMonth(),0)}
+ else if(p==='all')return {};
+ return {a:dISO(a),b:dISO(b)};
+}
+const rangeLabel={day:"Aujourd'hui",yesterday:'Hier',week:'Cette semaine',month:'Ce mois',lastmonth:'Mois dernier',all:'Toute la période'};
+function customRange(pfx){
+ if(state[pfx+'Range']==='custom'){
+  const from=state[pfx+'From'],to=state[pfx+'To'];
+  if(from&&to)return {a:from,b:to};
+ }
+ return rangeFor(state[pfx+'Range'])||{};
+}
+function rFor(pfx){
+ const val=state[pfx+'Range'];
+ if(val==='custom')return customRange(pfx);
+ if(val==='today'||val==='day')return {a:dISO(),b:dISO()};
+ if(val==='week')return rangeFor('week');
+ return {};
+}
+function rangeLabelFor(pfx){
+ if(state[pfx+'Range']==='custom')return state[pfx+'From']&&state[pfx+'To']?('du '+fmtD(state[pfx+'From'])+' au '+fmtD(state[pfx+'To'])):'période choisie';
+ return rangeLabel[state[pfx+'Range']]||'';
+}
+function periodPicker(pfx,presets){
+ presets=presets||[['day',"Aujourd'hui"],['week','Cette semaine'],['month','Ce mois'],['all','Tout']];
+ const cur=state[pfx+'Range']||presets[0][0];
+ let html='<div class="chips" style="margin-top:4px">'+presets.map(function(x){return '<button class="chip'+(cur===x[0]?' on':'')+'" onclick="state.'+pfx+'Range=\''+x[0]+'\';render()">'+x[1]+'</button>'}).join('')+
+  '<button class="chip'+(cur==='custom'?' on':'')+'" onclick="state.'+pfx+'Range=\'custom\';render()">📅 Choisir une période…</button></div>';
+ if(cur==='custom'){
+  html+='<div class="card" style="margin-top:6px"><div class="grid2"><div class="field"><label>Du</label><input class="inp" type="date" id="'+pfx+'f" value="'+(state[pfx+'From']||'')+'"></div><div class="field"><label>Au</label><input class="inp" type="date" id="'+pfx+'t" value="'+(state[pfx+'To']||'')+'"></div></div><button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="applyPeriod(\''+pfx+'\')">✅ Appliquer la période</button></div>';
+ }
+ return html;
+}
+function applyPeriod(pfx){
+ const f=document.getElementById(pfx+'f'),t=document.getElementById(pfx+'t');
+ if(!f||!t||!f.value||!t.value){toast('Choisis les deux dates');return}
+ if(f.value>t.value){toast('La date de début doit être avant la fin');return}
+ state[pfx+'From']=f.value;state[pfx+'To']=t.value;
+ render();
+}
+function applyReportPeriod(){
+ const f=document.getElementById('rf'),t=document.getElementById('rt');
+ if(!f||!t||!f.value||!t.value){toast('Choisis les deux dates');return}
+ if(f.value>t.value){toast('La date de début doit être avant la fin');return}
+ state.rFrom=f.value;state.rTo=t.value;state.rPreset=null;render();
+}
+function inR(iso,a,b){if(!a&&!b)return true;if(a&&iso<a)return false;if(b&&iso>b)return false;return true}
+function stats(a,b){
+ const r={ventes:0,dep:0,charges:0,cmv:0,achatsStock:0,enc:0,cred:0,credEnc:0,by:{}};
+ DB.activities.forEach(function(x){r.by[x.id]={name:x.name,v:0,d:0,ch:0,stock:0,cmv:0}});
+ DB.sales.forEach(function(s){
+  if(!inR(s.date,a,b))return;
+  r.ventes+=s.total;
+  if(s.pay==='credit')r.cred+=s.total;else r.enc+=s.total;
+  if(r.by[s.act])r.by[s.act].v+=s.total;
+  const p=prodById(s.prod);
+  const kind=(p&&p.kind)||s.kind;
+  const sz=(p&&p.size)||(s.effects&&s.effects.size);
+  if(sz&&(kind==='recharge'||kind==='definitive'||kind==='bouteille')){
+   const gz=(DB.settings.prixAchat||{})[sz]||0;
+   let c=s.qty*gz;
+   if(kind!=='recharge')c+=s.qty*bottleAvgCost(s.act,sz);
+   r.cmv+=c;
+   if(r.by[s.act])r.by[s.act].cmv+=c;
+  }
+ });
+ DB.expenses.forEach(function(e){
+  if(!inR(e.date,a,b))return;
+  r.dep+=e.amount;
+  const isStock=(e.cat==='Achat gaz'||e.cat==='Achat bouteilles');
+  if(isStock){r.achatsStock+=e.amount;if(r.by[e.act])r.by[e.act].stock+=e.amount}
+  else{r.charges+=e.amount;if(r.by[e.act])r.by[e.act].ch+=e.amount}
+  if(r.by[e.act])r.by[e.act].d+=e.amount;
+ });
+ DB.payments.forEach(function(p){if(inR(p.date,a,b))r.credEnc+=p.amount});
+ r.ben=r.ventes-r.cmv-r.charges;
+ return r;
+}
+function debts(){
+ const m={};
+ DB.sales.forEach(function(s){if(s.pay==='credit'&&s.client)m[s.client]=(m[s.client]||0)+s.total});
+ DB.payments.forEach(function(p){m[p.client]=(m[p.client]||0)-p.amount});
+ return Object.keys(m).map(function(n){return {name:n,due:m[n]}}).filter(function(x){return x.due>=1}).sort(function(x,y){return y.due-x.due});
+}
+function bottleAvgCost(act,size){
+ let tot=0,q=0;
+ DB.expenses.forEach(function(e){if(e.cat==='Achat bouteilles'&&e.effects&&e.effects.act===act&&e.effects.size===size){tot+=e.amount;q+=Math.abs(e.effects.v||0)}});
+ return q>0?Math.round(tot/q):0;
+}
+function stockValueGaz(){
+ let v=0;
+ gazActs().forEach(function(a){sizes().forEach(function(sz){const st=stockOf(a.id,sz);v+=st.pleines*((DB.settings.prixAchat||{})[sz]||0)+st.vides*bottleAvgCost(a.id,sz)})});
+ return Math.round(v);
+}
+function salePriceForSize(act,size){
+ const p=DB.products.find(function(x){return x.act===act&&x.size===size&&x.kind==='recharge'})||DB.products.find(function(x){return x.act===act&&x.size===size});
+ return p?p.price:0;
+}
+function stockValueSale(){
+ let v=0;
+ gazActs().forEach(function(a){sizes().forEach(function(sz){const st=stockOf(a.id,sz);v+=st.pleines*salePriceForSize(a.id,sz)+st.vides*bottleAvgCost(a.id,sz)})});
+ return Math.round(v);
+}
+function stockRecap(act,size){
+ const st=stockOf(act,size);
+ const pa=(DB.settings.prixAchat||{})[size]||0;
+ const avg=bottleAvgCost(act,size);
+ const va=Math.round(st.pleines*pa+st.vides*avg);
+ const vv=Math.round(st.pleines*salePriceForSize(act,size)+st.vides*avg);
+ return size+' : '+st.pleines+' pleine(s), '+st.vides+' vide(s) · valeur achat '+money(va)+' · valeur vente '+money(vv);
+}
+function suppCautBal(){return DB.supplierCautions.reduce(function(t,c){return t+(c.type==='in'?c.amount:-c.amount)},0)}
+function tops(a,b){
+ const m={};
+ DB.sales.forEach(function(s){if(!inR(s.date,a,b))return;if(!m[s.name])m[s.name]={n:s.name,q:0,t:0};m[s.name].q+=s.qty;m[s.name].t+=s.total});
+ return Object.keys(m).map(function(k){return m[k]}).sort(function(x,y){return y.t-x.t});
+}
+function catsStats(a,b){
+ const m={};
+ DB.expenses.forEach(function(e){if(!inR(e.date,a,b))return;m[e.cat]=(m[e.cat]||0)+e.amount});
+ return Object.keys(m).map(function(k){return {c:k,t:m[k]}}).sort(function(x,y){return y.t-x.t});
+}
+/* ============================ État & navigation ============================ */
+let state={tab:'home',page:null,hRange:'day',hFrom:'',hTo:'',aRange:'month',aFrom:'',aTo:'',vAct:'all',vActAll:'',vRange:'today',vFrom:'',vTo:'',vLimit:40,dAct:'all',dRange:'today',dFrom:'',dTo:'',dLimit:40,mAct:'all',mSize:'all',mRange:'all',mFrom:'',mTo:'',mLimit:100,rPreset:'month',rFrom:'',rTo:'',setAct:null};
+function go(tab){state.tab=tab;state.page=null;render();window.scrollTo(0,0)}
+function goPage(p){state.tab='plus';state.page=p;render();window.scrollTo(0,0)}
+function viewSub(title,inner){
+ return '<button class="backbtn" onclick="go(\'plus\')">← Menu</button><h2 style="margin:0 0 10px;font-size:20px">'+title+'</h2>'+inner;
+}
+function render(){
+ const tabs={home:'nav-home',ventes:'nav-ventes',depenses:'nav-depenses',stock:'nav-stock',plus:'nav-plus'};
+ Object.keys(tabs).forEach(function(t){const el=document.getElementById(tabs[t]);if(el)el.classList.toggle('on',t===state.tab)});
+ $('#bizname').textContent=DB.settings.businessName;
+ let html='';
+ if(state.tab==='home')html=viewHome();
+ else if(state.tab==='ventes')html=viewVentes();
+ else if(state.tab==='depenses')html=viewDepenses();
+ else if(state.tab==='stock')html=viewStock();
+ else if(state.tab==='plus')html=viewPlus();
+ $('#view').innerHTML=html;
+ try{const v=$('#view');if(v){v.style.animation='none';void v.offsetWidth;v.style.animation=''}}catch(e){}
+}
+
+/* ============================ ACCUEIL ============================ */
+function viewHome(){
+ const r=customRange('h');
+ const lab=rangeLabelFor('h');
+ const s=stats(r.a,r.b);
+ const month=stats(rangeFor('month').a,rangeFor('month').b);
+ const d=debts();const totDet=d.reduce(function(t,x){return t+x.due},0);
+ const days=[];let maxV=1;
+ for(let i=6;i>=0;i--){const dd=dISO(new Date(Date.now()-i*86400000));const v=DB.sales.filter(function(x){return x.date===dd}).reduce(function(t,x){return t+x.total},0);days.push({iso:dd,lab:fmtDL(dd).split(' ')[0],v:v});if(v>maxV)maxV=v}
+ const alerts=[];
+ gazActs().forEach(function(a){sizes().forEach(function(sz){const st=stockOf(a.id,sz);
+  if(st.pleines<DB.settings.seuilPleines)alerts.push({ok:false,t:'⚠️ '+a.name+' : seulement '+st.pleines+' bouteille(s) '+sz+' pleine(s). Pense au chargement.'});
+  if(st.vides>DB.settings.seuilVides)alerts.push({ok:false,t:'🛢 '+a.name+' : '+st.vides+' bouteille(s) '+sz+' vide(s) en magasin. Pense au retour dépôt.'});
+ })});
+ if(totDet>0)alerts.push({ok:false,t:'🤝 '+money(totDet)+' de crédits clients en cours ('+d.length+' client(s)).'});
+ if(!alerts.length)alerts.push({ok:true,t:'Tout est bon 👍 Aucune alerte.'});
+ const rows=DB.activities.filter(function(a){return s.by[a.id]&&(s.by[a.id].v>0||s.by[a.id].d>0)}).map(function(a){
+  const b=s.by[a.id];const ben=b.v-b.cmv-b.ch;return '<tr><td><b>'+esc(a.name)+'</b></td><td style="text-align:right">'+money(b.v)+'</td><td style="text-align:right">'+(b.cmv>0?money(b.cmv):'—')+'</td><td style="text-align:right">'+money(b.ch)+'</td><td style="text-align:right;font-weight:800;color:'+(ben>=0?'var(--grn)':'var(--red)')+'">'+money(ben)+'</td></tr>';
+ }).join('');
+ return periodPicker('h')+
+ '<div class="kpis">'+
+  kpi('Ventes ('+lab+')',money(s.ventes),'')+
+  kpi('Coût du gaz vendu',money(s.cmv),'Ce qui est réellement vendu')+
+  kpi('Charges',money(s.charges),'Loyer, électricité…')+
+  kpi('Bénéfice',money(s.ben),s.ben>=0?'good':'bad')+
+  kpi('Encaissé (ventes)',money(s.enc),'Espèces + Mobile Money')+
+  kpi('Crédits encaissés',money(s.credEnc),'Remboursements reçus')+
+  kpi('Crédits en cours',money(totDet),d.length+' client(s) endetté(s)')+
+
+  kpi('Consignations fournisseurs',money(suppCautBal()),'Argent immobilisé (à récupérer)')+
+  kpi('Bénéfice du mois',money(month.ben),month.ben>=0?'good':'bad')+
+  kpi('Stock gaz (valeur d\achat)',money(stockValueGaz()),'Valeur de vente potentielle : '+money(stockValueSale()))+
+  kpi('Marge potentielle du stock',money(stockValueSale()-stockValueGaz()),'Avant charges (les charges ne sont pas encore connues)')+
+ '</div>'+
+ '<div class="hint" style="margin:6px 0 8px">💡 <b>Bénéfice = ventes − coût du gaz vendu − charges.</b> Le gaz acheté au dépôt <b>reste en stock</b> (c\'est de la valeur disponible) : on ne compte en perte que le coût du gaz réellement vendu.</div><div class="card" style="display:flex;gap:10px"><button class="btn btn-pri" style="flex:1" onclick="go(\'ventes\')">➕ Nouvelle vente</button><button class="btn" style="flex:1" onclick="openExpense()">➖ Dépense</button></div>'+
+ '<h2 class="sec">Ventes des 7 derniers jours</h2><div class="card"><div class="chart">'+
+  days.map(function(x){return '<div class="col" title="'+fmtD(x.iso)+' : '+money(x.v)+'"><div class="val">'+money(x.v)+'</div><div class="bar" style="height:'+Math.max(3,Math.round(x.v/maxV*70))+'px"></div><div class="lab">'+x.lab+'</div></div>'}).join('')+
+ '</div></div>'+
+ '<h2 class="sec">Par activité ('+lab+')</h2><div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Activité</th><th style="text-align:right">Ventes</th><th style="text-align:right">Coût gaz</th><th style="text-align:right">Charges</th><th style="text-align:right">Bénéfice</th></tr>'+(rows||'<tr><td colspan="4"><div class="empty"><span class="e">🌱</span>Aucune opération sur cette période.<br>Enregistre ta première vente avec le bouton ➕</div></td></tr>')+'</table></div></div>'+
+ '<h2 class="sec">Alertes</h2>'+alerts.map(function(a){return '<div class="alert'+(a.ok?' ok':'')+'">'+a.t+'</div>'}).join('')+
+ '<div class="card" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" style="flex:1;min-width:150px" onclick="goPage(\'rapports\')">📊 Voir les rapports</button><button class="btn btn-ghost" style="flex:1;min-width:150px" onclick="goPage(\'analytique\')">🧮 Rentabilité par activité</button><button class="btn btn-ghost" style="flex:1;min-width:150px" onclick="go(\'stock\')">📦 Voir le stock</button></div>'+
+ '<div class="small-txt" style="text-align:center;margin-top:16px;color:var(--mut)">Conçu avec ❤️ par DOREGO SERVICES · +225 0502657392</div>';
+}
+function kpi(l,v,cls){return '<div class="kpi"><div class="l">'+l+'</div><div class="v '+(cls==='good'?'good':cls==='bad'?'bad':'')+'">'+v+'</div></div>'}
+
+/* ============================ VENTES ============================ */
+function viewVentes(){
+ const acts=bizActs();
+ const r=rFor('v');
+ const sel=state.vAct||'all';
+ const qAct=state.vActAll||(sel!=='all'?sel:(acts.length?acts[0].id:''));
+ const qProds=qAct?prodsOf(qAct):[];
+ let list=DB.sales.filter(function(s){return inR(s.date,r.a,r.b)&&(sel==='all'||s.act===sel)}).sort(function(x,y){return y.ts-x.ts});
+ const shown=list.slice(0,state.vLimit);
+ const prods=sel==='all'?[]:prodsOf(sel);
+ const tot=list.reduce(function(t,s){return t+s.total},0);
+ let prev='';const items=shown.map(function(s){
+  let h='';if(s.date!==prev){h='<div class="date-head">'+fmtDL(s.date)+'</div>';prev=s.date}
+  return h+'<div class="list-item">'+
+   '<div style="flex:1;min-width:0"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="font-weight:700">'+esc(s.name)+'</span>'+(s.qty>1?'<span class="pill">×'+fmtQty(s.qty)+'</span>':'')+payBadge(s.pay)+'</div>'+
+   '<div class="small-txt" style="margin-top:2px">'+fmtTime(s.ts)+' · <span class="pill" style="background:'+actColor(s.act)+';color:#fff">'+esc(actName(s.act))+'</span>'+(s.client?' · Client : '+esc(s.client):'')+(s.note?' · '+esc(s.note):'')+(s.cautionIn?' · <span class="pill">consigne +'+money(s.cautionIn)+'</span>':'')+'</div></div>'+
+   '<div style="text-align:right"><div style="font-weight:800">'+money(s.total)+'</div><div class="small-txt">'+fmtD(s.date)+'</div></div>'+
+   '<button class="del" onclick="delSale(\''+s.id+'\')" title="Supprimer">🗑</button>'+
+  '</div>';
+ }).join('');
+ return '<div class="plus-btn"><button class="fab" onclick="openFreeSale()">➕ Nouvelle vente</button></div>'+
+ '<div class="chips"><button class="chip'+(sel==='all'?' on':'')+'" onclick="state.vAct=\'all\';state.vActAll=\'\';state.vLimit=40;render()">Toutes</button>'+
+  acts.map(function(a){return '<button class="chip'+(sel===a.id?' on':'')+'" style="border-color:'+actColor(a.id)+'" onclick="state.vAct=\''+a.id+'\';state.vActAll=\''+a.id+'\';state.vLimit=40;render()">'+esc(a.name)+'</button>'}).join('')+'</div>'+
+ periodPicker('v',[['today',"Aujourd'hui"],['week','Cette semaine'],['all','Tout']])+
+ '<div class="card" style="margin-top:8px">'+
+  '<div class="small-txt" style="margin-bottom:6px"><b>➕ Vente rapide : choisis le magasin puis le produit</b></div>'+
+  '<div class="grid2"><div class="field"><label>Magasin / activité</label><select class="inp" id="vq_act" onchange="state.vActAll=this.value;render()"><option value="">— choisir —</option>'+
+   acts.map(function(a){return '<option value="'+a.id+'"'+(a.id===qAct?' selected':'')+'>'+esc(a.name)+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Produit</label><select class="inp" id="vq_prod"><option value="">— choisir —</option>'+
+   qProds.map(function(p){var stTxt='';if(p.size&&actById(p.act)){var st=stockOf(p.act,p.size);stTxt=' · stock : '+st.pleines+' pleine(s)'+(st.pleines<=0?' ⚠️ épuisé':'')}return '<option value="'+p.id+'">'+esc(p.name)+' — '+money(p.price)+(p.size?' ('+p.size+')':'')+stTxt+'</option>'}).join('')+'</select></div></div>'+
+  '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-pri" style="flex:2" onclick="doQuickSale()">➡️ Vendre</button><button class="btn" style="flex:1" onclick="openFreeSale(qAct||\'\')">✏️ Vente libre</button></div>'+
+ '</div>'+
+ '<h2 class="sec" style="margin-top:14px">Historique'+(list.length?' — '+list.length+' vente(s) · '+money(tot):'')+'</h2><div class="card">'+(items||'<div class="empty"><span class="e">🧺</span>Aucune vente enregistrée ici pour l\'instant.</div>')+
+ (list.length>state.vLimit?'<div style="text-align:center;margin-top:10px"><button class="btn btn-sm btn-ghost" onclick="state.vLimit+=40;render()">Afficher plus</button></div>':'')+
+ '</div>';
+}
+
+/* ============================ DÉPENSES ============================ */
+function viewDepenses(){
+ const acts=DB.activities;
+ const r=rFor('d');
+ const sel=state.dAct||'all';
+ let list=DB.expenses.filter(function(e){return inR(e.date,r.a,r.b)&&(sel==='all'||e.act===sel)}).sort(function(x,y){return y.ts-x.ts});
+ const shown=list.slice(0,state.dLimit);
+ const tot=list.reduce(function(t,e){return t+e.amount},0);
+ let prev='';const items=shown.map(function(e){
+  let h='';if(e.date!==prev){h='<div class="date-head">'+fmtDL(e.date)+'</div>';prev=e.date}
+  return h+'<div class="list-item">'+
+   '<div style="flex:1;min-width:0"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="font-weight:700">'+esc(e.label||e.cat)+'</span><span class="pill">'+esc(e.cat)+'</span></div>'+
+   '<div class="small-txt" style="margin-top:2px">'+fmtTime(e.ts)+' · <span class="pill" style="background:'+actColor(e.act)+';color:#fff">'+esc(actName(e.act))+'</span>'+(e.note?' · '+esc(e.note):'')+'</div></div>'+
+   '<div style="text-align:right"><div style="font-weight:800;color:var(--red)">− '+money(e.amount)+'</div><div class="small-txt">'+fmtD(e.date)+'</div></div>'+
+   '<button class="del" onclick="delExpense(\''+e.id+'\')" title="Supprimer">🗑</button>'+
+  '</div>';
+ }).join('');
+ return '<div class="plus-btn"><button class="fab" onclick="openExpense()">➕ Nouvelle dépense</button></div>'+
+ '<div class="chips"><button class="chip'+(sel==='all'?' on':'')+'" onclick="state.dAct=\'all\';state.dLimit=40;render()">Toutes</button>'+
+  acts.map(function(a){return '<button class="chip'+(sel===a.id?' on':'')+'" style="border-color:'+actColor(a.id)+'" onclick="state.dAct=\''+a.id+'\';state.dLimit=40;render()">'+esc(a.name)+'</button>'}).join('')+'</div>'+
+ periodPicker('d',[['today',"Aujourd'hui"],['week','Cette semaine'],['all','Tout']])+
+ '<h2 class="sec">Historique'+(list.length?' — '+list.length+' dépense(s) · '+money(tot):'')+'</h2><div class="card">'+(items||'<div class="empty"><span class="e">💸</span>Aucune dépense enregistrée ici pour l\'instant.</div>')+
+ (list.length>state.dLimit?'<div style="text-align:center;margin-top:10px"><button class="btn btn-sm btn-ghost" onclick="state.dLimit+=40;render()">Afficher plus</button></div>':'')+
+ '</div>';
+}
+
+/* ============================ STOCK ============================ */
+function viewStock(){
+ const gz=gazActs().map(function(a){
+  let tot=0,vaTot=0,vvTot=0;
+  sizes().forEach(function(sz){const st=stockOf(a.id,sz);tot+=st.pleines+st.vides;vaTot+=st.pleines*((DB.settings.prixAchat||{})[sz]||0)+st.vides*bottleAvgCost(a.id,sz);vvTot+=st.pleines*salePriceForSize(a.id,sz)+st.vides*bottleAvgCost(a.id,sz)});
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:15px">⛽ '+esc(a.name)+'</b></div>'+
+   '<div class="tblwrap"><table class="tbl"><tr><th>Taille</th><th style="text-align:center">Pleines</th><th style="text-align:center">Vides</th><th style="text-align:center">Total</th><th></th></tr>'+
+   sizes().map(function(sz){const st=stockOf(a.id,sz);const low=st.pleines<DB.settings.seuilPleines;const high=st.vides>DB.settings.seuilVides;
+    return '<tr><td><b>'+sz+'</b></td>'+
+     '<td style="text-align:center;font-weight:800;color:'+(low?'var(--amb)':'inherit')+'">'+st.pleines+'</td>'+
+     '<td style="text-align:center;font-weight:800;color:'+(high?'var(--red)':'inherit')+'">'+st.vides+'</td>'+
+     '<td style="text-align:center"><b>'+(st.pleines+st.vides)+'</b></td>'+
+     '<td style="text-align:right"><button class="btn btn-sm btn-ghost" onclick="openAjustStock(\''+a.id+'\',\''+sz+'\')">Ajuster</button></td></tr>';
+   }).join('')+'</table></div>'+
+   '<div class="row" style="margin-top:8px;border-top:2px solid var(--ink)"><span class="small-txt">📦 Total bouteilles</span><b>'+tot+'</b></div>'+
+   '<div class="small-txt" style="margin-top:4px;background:#f0fdfa;border-radius:8px;padding:6px 8px">💰 Valeur du stock : achat <b>'+money(vaTot)+'</b> · vente potentielle <b>'+money(vvTot)+'</b>'+(vvTot>vaTot?' · marge potentielle <b>'+money(vvTot-vaTot)+'</b>':'')+'</div>'+
+   '<div class="small-txt" style="margin-top:8px">💡 <b>Échange client (recharge)</b> : le client apporte sa vide et repart avec une pleine → pleines −1, vides +1, <b>total inchangé</b>. <b>Vente définitive</b> : le client achète la bouteille → total −1. Le total ne change que par : consignation fournisseur (+), restitution (−), achat de vides (+), vente définitive (−), perte/casse (−).</div>'+
+   '<div class="chips" style="margin-bottom:0"><button class="btn btn-sm" onclick="openChargement(\''+a.id+'\')">🛢 Chargement</button><button class="btn btn-sm" onclick="openAchatVides(\''+a.id+'\')">🧺 Achat bouteilles vides</button><button class="btn btn-sm" onclick="openPerte(\''+a.id+'\')">🔥 Perte / casse</button></div></div>';
+ }).join('');
+ const fd=foodActs().map(function(a){
+  const items=DB.stockFood[a.id]||[];
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:15px">🍗 '+esc(a.name)+'</b></div>'+
+   (items.length?items.map(function(it){
+    return '<div class="row"><span>'+esc(it.name)+' <span class="pill">'+esc(it.unit)+'</span></span>'+
+     '<span style="display:flex;gap:6px;align-items:center"><button class="icon-btn" onclick="foodStep(\''+a.id+'\',\''+it.id+'\',-1)">−</button><b style="min-width:44px;text-align:center">'+fmtQty(it.qty)+'</b><button class="icon-btn" onclick="foodStep(\''+a.id+'\',\''+it.id+'\',1)">+</button><button class="del" onclick="delIngredient(\''+a.id+'\',\''+it.id+'\')">🗑</button></span></div>';
+   }).join(''):'<div class="empty"><span class="e">🛒</span>Aucun ingrédient. Ajoute-en un ci-dessous.</div>')+
+   '<div class="chips" style="margin-bottom:0"><button class="btn btn-sm" onclick="openAchatIngredient(\''+a.id+'\')">🛒 Achat ingrédient</button><button class="btn btn-sm" onclick="openAddIngredient(\''+a.id+'\')">➕ Ajouter</button></div></div>';
+ }).join('');
+ const mv=DB.moves.slice(0,6).map(function(m){return '<div class="row"><span style="flex:1;min-width:0">'+moveBadge(m.type)+' <span class="small-txt">'+esc(m.label||'')+' ('+esc(m.size||'')+' · '+esc(actName(m.act))+')</span></span><span class="small-txt">'+fmtD(m.date)+' '+fmtTime(m.ts)+'</span></div>'}).join('');
+ return '<h2 class="sec" style="margin-top:4px">Bouteilles de gaz</h2>'+(gz||'<div class="card"><div class="empty"><span class="e">⛽</span>Aucun magasin de gaz. Ajoute une activité de type « gaz » dans Réglages.</div></div>')+
+ '<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b>🏭 Consignations fournisseurs</b><div class="small-txt">Argent immobilisé chez les dépôts : <b>'+money(suppCautBal())+'</b></div></div><button class="btn btn-sm" onclick="goPage(\'fournisseurs\')">Gérer</button></div>'+
+ '<h2 class="sec">Ingrédients cuisine</h2>'+(fd||'')+
+ '<h2 class="sec">Derniers mouvements de stock</h2><div class="card">'+(mv||'<div class="empty"><span class="e">📦</span>Aucun mouvement pour l\'instant.</div>')+'<button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="goPage(\'mouvements\')">📦 Voir tous les mouvements</button></div>';
+}
+
+/* ============================ CRÉDITS ============================ */
+function viewCredits(){
+ const d=debts();const totDet=d.reduce(function(t,x){return t+x.due},0);
+ const clients=d.map(function(c,i){
+  const last=DB.sales.filter(function(s){return s.client===c.name&&s.pay==='credit'}).sort(function(a,b){return b.ts-a.ts})[0];
+  return '<div class="card" style="display:flex;align-items:center;gap:10px">'+
+   '<div style="flex:1;min-width:0"><b>'+esc(c.name)+'</b>'+(last?'<div class="small-txt">Dernier achat : '+fmtD(last.date)+' · '+esc(actName(last.act))+'</div>':'')+'</div>'+
+   '<div style="text-align:right"><div style="font-weight:800;color:var(--red)">'+money(c.due)+'</div><button class="btn btn-sm btn-pri" style="margin-top:4px" onclick="openPay('+i+')">💵 Encaisser</button></div></div>';
+ }).join('');
+ const pays=DB.payments.slice().sort(function(a,b){return b.ts-a.ts}).slice(0,30).map(function(p){
+  return '<div class="list-item"><div style="flex:1;min-width:0"><b>'+esc(p.client)+'</b><div class="small-txt">'+fmtD(p.date)+' · '+fmtTime(p.ts)+(p.note?' · '+esc(p.note):'')+'</div></div><div style="font-weight:800;color:var(--grn)">+ '+money(p.amount)+'</div><button class="del" onclick="delPay(\''+p.id+'\')">🗑</button></div>';
+ }).join('');
+ return viewSub('🤝 Crédits clients',
+  '<div class="kpis" style="margin-bottom:10px"><div class="kpi"><div class="l">Total dû par les clients</div><div class="v bad">'+money(totDet)+'</div><div class="s">'+d.length+' client(s) endetté(s)</div></div><div class="kpi"><div class="l">Crédits encaissés (période)</div><div class="v good">'+money(stats(undefined,undefined).credEnc)+'</div><div class="s">Remboursements reçus des clients</div></div></div>'+
+  '<h2 class="sec" style="margin-top:0">Clients qui doivent</h2>'+(clients||'<div class="card"><div class="empty"><span class="e">🎉</span>Aucun client ne doit de l\'argent. Pour une vente à crédit, choisis « Crédit » au moment de la vente et écris le nom du client.</div></div>')+
+  '<h2 class="sec">Derniers remboursements</h2><div class="card">'+(pays||'<div class="empty"><span class="e">💵</span>Aucun remboursement enregistré.</div>')+'</div>');
+}
+
+/* ============================ CONSIGNATIONS FOURNISSEURS ============================ */
+function viewFournisseurs(){
+ const bal=suppCautBal();
+ const items=DB.supplierCautions.slice().sort(function(a,b){return b.ts-a.ts}).slice(0,40).map(function(c){
+  return '<div class="list-item"><div style="flex:1;min-width:0"><b>'+esc(c.supplier||'Fournisseur')+'</b>'+(c.type==='in'?' <span class="pill">versée</span>':' <span class="pill" style="background:#fee2e2;color:#b91c1c">récupérée</span>')+(c.qty?' <span class="pill" style="background:#e0f2fe;color:#075985">📦 '+c.qty+' bouteille(s)'+(c.size?' '+esc(c.size):'')+'</span>':'')+'<div class="small-txt" style="margin-top:2px">'+fmtD(c.date)+' · '+fmtTime(c.ts)+(c.note?' · '+esc(c.note):'')+'</div></div><div style="text-align:right;font-weight:800;color:'+(c.type==='in'?'var(--amb)':'var(--grn)')+'">'+(c.type==='in'?'− ':'+ ')+money(c.amount)+'</div><button class="del" onclick="delCaut(\''+c.id+'\')">🗑</button></div>';
+ }).join('');
+ return viewSub('🏭 Consignations fournisseurs',
+  '<div class="kpis" style="margin-bottom:10px"><div class="kpi"><div class="l">Argent immobilisé chez les fournisseurs</div><div class="v '+(bal<0?'bad':'')+'">'+money(bal)+'</div><div class="s">'+(bal<0?'⚠️ Négatif : vérifie les montants saisis':'À récupérer quand tu rendras les bouteilles')+'</div></div></div>'+
+  '<div class="card"><div class="hint" style="line-height:1.6">C\'est la <b>consignation</b> que tu as payée à tes fournisseurs (dépôts) pour leurs bouteilles. <b>Ce n\'est pas une dépense</b> : c\'est de l\'argent immobilisé que tu récupéreras quand tu leur rendras les bouteilles.<br><br>👉 Quand tu paies une consignation à un fournisseur : <b>« Verser »</b>.<br>👉 Quand un fournisseur te rembourse (retour de bouteilles) : <b>« Récupérer »</b>.</div>'+
+  '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-sm" style="flex:1" onclick="openCautFourn(\'in\')">➕ Verser une consignation</button><button class="btn btn-sm" style="flex:1" onclick="openCautFourn(\'out\')">↩️ Récupérer (remboursement)</button></div></div>'+
+  '<h2 class="sec" style="margin-top:14px">Historique</h2><div class="card">'+(items||'<div class="empty"><span class="e">🏭</span>Aucune consignation enregistrée pour l\'instant.</div>')+'</div>');
+}
+function openCautFourn(type){
+ curCautType=type;
+ const acts=gazActs();
+ openModal(type==='in'?'➕ Consignation versée à un fournisseur':'↩️ Consignation récupérée',
+  '<div class="field"><label>Nom du fournisseur (dépôt) ★</label><input class="inp" id="cf_sup" placeholder="Ex : Dépôt Total, Oryx, Petro Ivoire…"></div>'+
+  '<div class="grid2"><div class="field"><label>Montant (F) ★</label><input class="inp" id="cf_amt" type="text" inputmode="decimal" placeholder="Ex : 200000"></div>'+
+  '<div class="field"><label>Date ★</label><input class="inp" id="cf_date" type="date" value="'+dISO()+'"></div></div>'+
+  '<div class="hint" style="margin-bottom:4px">📦 <b>Les bouteilles aussi</b> : '+(type==='in'?'une consignation versée augmente le nombre de bouteilles en main (souvent des vides).':'une restitution diminue le nombre de bouteilles en main (souvent des vides rendues).')+' Remplis la quantité si des bouteilles ont changé de main.</div>'+
+  '<div class="grid2"><div class="field"><label>Activité (magasin de gaz)</label><select class="inp" id="cf_act" onchange="calcCautConseq()">'+(acts.length?acts.map(function(a){return '<option value="'+a.id+'">'+esc(a.name)+'</option>'}).join(''):'<option value="">— aucun magasin de gaz —</option>')+'</select></div>'+
+  '<div class="field"><label>Taille</label><select class="inp" id="cf_size" onchange="calcCautConseq()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Nombre de bouteilles</label><input class="inp" id="cf_qty" type="text" inputmode="decimal" placeholder="0 = pas de changement de stock" oninput="calcCautConseq()"></div>'+
+  '<div class="field"><label>État des bouteilles</label><select class="inp" id="cf_state" onchange="calcCautConseq()"><option value="vides"'+(type==='in'?' selected':'')+'>Vides</option><option value="pleines">Pleines</option></select></div></div>'+
+  '<div id="cf_conseq"></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="cf_note" placeholder="Ex : 20 bouteilles B12.5"></div>'+
+  (type==='in'?'<div class="alert" style="margin-bottom:0">💡 Rappel : ce n\'est pas une dépense. Le bénéfice n\'est pas touché.</div>':''),
+  {primary:'Enregistrer',onSubmit:function(){
+   const amt=Math.round(num(val('cf_amt'))),sup=val('cf_sup').trim();
+   if(amt<=0){toast('Mets le montant');return false}
+   if(!sup){toast('Écris le nom du fournisseur (important !)');return false}
+   const act=val('cf_act'),sz=val('cf_size'),qty=Math.max(0,Math.round(num(val('cf_qty')))),state=val('cf_state');
+   const entry={id:uid(),ts:Date.now(),date:val('cf_date')||dISO(),supplier:sup||'Fournisseur',type:type,amount:amt,note:val('cf_note').trim(),act:act,size:sz,qty:qty,state:state,via:'direct'};
+   DB.supplierCautions.unshift(entry);
+   if(qty>0&&act){
+    const d=applyCautStock(entry,1);
+    if(d){const dp=(state==='pleines')?d.d:0,dv=(state==='vides')?d.d:0;
+     addMove(act,sz,type==='in'?'consignation-in':'consignation-out',dp,dv,0,(type==='in'?'Consignation : +':'Restitution : −')+qty+' bouteille(s) '+sz,sup||'Fournisseur');
+     logStock(act,'Consignation '+(type==='in'?'+':'−')+qty+' bouteille(s) '+sz+' ('+sup+')');
+    }
+   }
+   let crecap='';if(qty>0&&act){crecap=' · '+stockRecap(act,sz)}
+   save();toast((type==='in'?'Consignation enregistrée ✓':'Remboursement enregistré ✓')+crecap);render();return true;
+  }});
+ calcCautConseq();
+}
+function calcCautConseq(){
+ const el=document.getElementById('cf_conseq');if(!el)return;
+ const q=Math.max(0,Math.round(num(val('cf_qty'))));
+ if(q<=0){el.innerHTML='<div class="hint" style="margin-top:8px">📦 Aucun changement de stock (quantité à 0) — seule l\'écriture d\'argent est enregistrée.</div>';return}
+ const act=val('cf_act'),sz=val('cf_size'),state=val('cf_state');
+ if(!act){el.innerHTML='<div class="hint" style="margin-top:8px">📦 Aucun changement de stock (aucun magasin de gaz sélectionné).</div>';return}
+ const st=stockOf(act,sz);
+ const cur=state==='pleines'?st.pleines:st.vides;
+ const next=(curCautType==='in')?cur+q:Math.max(0,cur-q);
+ const lab=state==='pleines'?'Pleines':'Vides';
+ el.innerHTML='<div class="alert'+(curCautType==='in'?'':' ok')+'" style="margin-top:8px">📦 <b>Conséquence :</b> '+(curCautType==='in'?'Consignation versée → +'+q+' bouteille(s) '+sz+' ('+lab+' : '+cur+' → '+next+').':'Restitution → −'+q+' bouteille(s) '+sz+' ('+lab+' : '+cur+' → '+next+').')+'</div>';
+}
+function delCaut(id){
+ const c=DB.supplierCautions.find(function(x){return x.id===id});if(!c)return;
+ confirmModal('Supprimer cette consignation ?','Le total sera recalculé, et le stock de bouteilles sera remis comme avant si des bouteilles étaient liées.',function(){
+  if(c.qty&&c.act){const d=applyCautStock(c,-1);if(d){const dp=(c.state==='pleines')?d.d:0,dv=(c.state==='vides')?d.d:0;addMove(c.act,c.size,'annulation-consignation',dp,dv,0,'Annulation consignation ('+(c.supplier||'Fournisseur')+')','')}}
+  DB.supplierCautions=DB.supplierCautions.filter(function(x){return x.id!==id});
+  save();render();
+ });
+}
+
+/* ============================ MOUVEMENTS DE STOCK (page) ============================ */
+function viewMouvements(){
+ const r=rFor('m');
+ let list=DB.moves.filter(function(m){return inR(m.date,r.a,r.b)&&(state.mAct==='all'||m.act===state.mAct)&&(state.mSize==='all'||m.size===state.mSize)});
+ const shown=list.slice(0,state.mLimit);
+ function dCell(d){if(!d)return '<td style="text-align:right;color:var(--mut)">—</td>';return '<td style="text-align:right;font-weight:700;color:'+(d>0?'var(--grn)':'var(--red)')+'">'+(d>0?'+':'')+d+'</td>'}
+ const rows=shown.map(function(m){
+  return '<tr><td><div style="font-weight:700">'+moveBadge(m.type)+'</div><div class="small-txt">'+fmtD(m.date)+' · '+fmtTime(m.ts)+'</div></td>'+
+  '<td><span class="pill" style="background:'+actColor(m.act)+';color:#fff">'+esc(actName(m.act))+'</span></td>'+
+  '<td style="text-align:center"><b>'+esc(m.size||'')+'</b></td>'+
+  dCell(m.dp)+dCell(m.dv)+
+  '<td style="text-align:right;font-variant-numeric:tabular-nums"><span class="small-txt">P</span> <b>'+m.p+'</b> · <span class="small-txt">V</span> <b>'+m.v+'</b></td>'+
+  '<td class="small-txt">'+esc(m.label)+(m.note?' · '+esc(m.note):'')+'</td></tr>';
+ }).join('');
+ const acts=gazActs();
+ return viewSub('📦 Mouvements de stock',
+  '<div class="chips">'+[['all','Toutes']].concat(acts.map(function(a){return [a.id,a.name]})).map(function(x){return '<button class="chip'+(state.mAct===x[0]?' on':'')+'" onclick="state.mAct=\''+x[0]+'\';state.mLimit=100;render()">'+esc(x[1])+'</button>'}).join('')+'</div>'+
+  '<div class="chips">'+[['all','Toutes tailles']].concat(sizes().map(function(sz){return [sz,sz]})).map(function(x){return '<button class="chip'+(state.mSize===x[0]?' on':'')+'" onclick="state.mSize=\''+x[0]+'\';state.mLimit=100;render()">'+esc(x[1])+'</button>'}).join('')+'</div>'+
+  periodPicker('m',[['all','Tout'],['today',"Aujourd'hui"],['week','Cette semaine'],['month','Ce mois']])+
+  '<div class="small-txt" style="margin:4px 0 8px">'+list.length+' mouvement(s) · Colonnes : Δ = variation (P = pleines, V = vides) puis <b>le stock restant après</b> le mouvement.</div>'+
+  '<div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Mouvement</th><th>Activité</th><th>Taille</th><th style="text-align:right">ΔP</th><th style="text-align:right">ΔV</th><th style="text-align:right">Reste (P·V)</th><th>Détail</th></tr>'+
+  (rows||'<tr><td colspan="8"><div class="empty"><span class="e">📦</span>Aucun mouvement de stock pour ces filtres.</div></td></tr>')+
+  '</table></div>'+
+  (list.length>state.mLimit?'<div style="text-align:center;margin-top:10px"><button class="btn btn-sm btn-ghost" onclick="state.mLimit+=100;render()">Afficher plus</button></div>':'')+
+  '</div>'+
+  '<div class="hint">💡 L\'ajustement manuel remet les compteurs à la réalité après un inventaire. Les annulations apparaissent aussi dans l\'historique.</div>');
+}
+
+/* ============================ PERTE / CASSE ============================ */
+function openPerte(act){
+ curPerteAct=act;
+ openModal('🔥 Perte / casse — '+esc(actName(act)),
+  '<div class="hint">Enregistre ici les bouteilles <b>perdues, cassées ou volées</b> : elles sortent du stock définitivement.</div>'+
+  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="p_size" onchange="calcPerteConseq()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Quantité ★</label><input class="inp" id="p_q" type="text" inputmode="decimal" value="1" oninput="calcPerteConseq()"></div>'+
+  '<div class="field"><label>État</label><select class="inp" id="p_state" onchange="calcPerteConseq()"><option value="pleines">Pleines</option><option value="vides">Vides</option></select></div></div>'+
+  '<div id="p_conseq"></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="p_note" placeholder="Ex : bouteille cassée au transport"></div>',
+  {primary:'Enregistrer la perte',onSubmit:function(){
+   const sz=val('p_size'),q=Math.max(0,Math.round(num(val('p_q')))),state=val('p_state');
+   if(q<=0){toast('Mets la quantité');return false}
+   const st=stockOf(act,sz);
+   let dp=0,dv=0,dc=0;
+   if(state==='pleines'){dp=-q;st.pleines=Math.max(0,st.pleines-q)}
+   else if(state==='vides'){dv=-q;st.vides=Math.max(0,st.vides-q)}
+   else{dc=-q;st.cons=Math.max(0,st.cons-q)}
+   addMove(act,sz,'perte',dp,dv,dc,'Perte / casse : −'+q+' '+sz,val('p_note').trim());
+   logStock(act,'Perte : −'+q+' bouteille(s) '+sz);
+   save();toast('Perte enregistrée ✓ · '+stockRecap(act,sz));render();return true;
+  }});
+ calcPerteConseq();
+}
+function calcPerteConseq(){
+ const el=document.getElementById('p_conseq');if(!el)return;
+ const q=Math.max(0,Math.round(num(val('p_q'))));
+ if(q<=0){el.innerHTML='';return}
+ const sz=val('p_size'),state=val('p_state');const st=stockOf(curPerteAct,sz);
+ const labels={pleines:'Pleines',vides:'Vides'};
+ const cur=state==='pleines'?st.pleines:(state==='vides'?st.vides:st.cons);
+ el.innerHTML='<div class="alert" style="margin-top:8px">📦 <b>Conséquence :</b> '+labels[state]+' : '+cur+' → '+Math.max(0,cur-q)+' · Total en main : <b>−'+q+'</b> bouteille(s). Cette perte est définitive.</div>';
+}
+
+/* ============================ RAPPORTS ============================ */
+function curRange(){
+ if(state.rFrom&&state.rTo)return {a:state.rFrom,b:state.rTo,label:'du '+fmtD(state.rFrom)+' au '+fmtD(state.rTo)};
+ const p=state.rPreset||'month';const r=rangeFor(p);r.label=rangeLabel[p]||'';return r;
+}
+function viewRapports(){
+ const r=curRange();const s=stats(r.a,r.b);
+ const d=debts();const totDet=d.reduce(function(t,x){return t+x.due},0);
+ const presets=[['today',"Aujourd'hui"],['yesterday','Hier'],['week','7 derniers jours'],['month','Ce mois'],['lastmonth','Mois dernier'],['all','Tout']];
+ const byAct=DB.activities.map(function(a){const b=s.by[a.id];return {name:a.name,v:b.v,c:b.cmv,d:b.ch,b:b.v-b.cmv-b.ch}});
+ const totalRow={name:'TOTAL',v:s.ventes,c:s.cmv,d:s.charges,b:s.ben};
+ const tp=tops(r.a,r.b).slice(0,10);
+ const cs=catsStats(r.a,r.b);
+ return viewSub('📊 Rapports',
+  '<div class="chips" style="margin-top:0">'+presets.map(function(x){return '<button class="chip'+(state.rPreset===x[0]&&!state.rFrom?' on':'')+'" onclick="state.rPreset=\''+x[0]+'\';state.rFrom=\'\';state.rTo=\'\';render()">'+x[1]+'</button>'}).join('')+'</div>'+
+  '<div class="card"><div class="small-txt" style="margin-bottom:8px"><b>Ou choisis une période précise :</b></div><div class="grid2"><div class="field"><label>Du</label><input class="inp" type="date" id="rf" value="'+state.rFrom+'"></div><div class="field"><label>Au</label><input class="inp" type="date" id="rt" value="'+state.rTo+'"></div></div><button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="applyReportPeriod()">Appliquer la période</button></div>'+
+  '<div class="small-txt" style="margin:2px 0 8px">Période affichée : <b>'+r.label+'</b></div>'+
+  '<div class="kpis">'+kpi('Ventes',money(s.ventes),'')+kpi('Coût du gaz vendu',money(s.cmv),'')+kpi('Charges',money(s.charges),'Hors stock')+kpi('Bénéfice',money(s.ben),s.ben>=0?'good':'bad')+kpi('Encaissé',money(s.enc),'Ventes hors crédit')+kpi('Crédits encaissés',money(s.credEnc),'Remboursements')+kpi('Crédits en cours',money(totDet),d.length+' client(s)')+kpi('Consignations fournisseurs',money(suppCautBal()),'À récupérer')+kpi('Nb ventes',String(DB.sales.filter(function(x){return inR(x.date,r.a,r.b)}).length),'')+'</div>'+
+  '<div class="hint" style="margin:2px 0 8px">💡 Bénéfice = ventes − coût du gaz vendu − charges. Le stock de gaz acheté reste de la valeur disponible.</div>'+
+  '<h2 class="sec">Par activité</h2><div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Activité</th><th style="text-align:right">Ventes</th><th style="text-align:right">Coût gaz</th><th style="text-align:right">Charges</th><th style="text-align:right">Bénéfice</th></tr>'+
+  byAct.concat([totalRow]).map(function(x){return '<tr'+(x.name==='TOTAL'?' style="border-top:2px solid var(--ink);font-weight:800"':'')+'><td><b>'+esc(x.name)+'</b></td><td style="text-align:right">'+money(x.v)+'</td><td style="text-align:right">'+money(x.c)+'</td><td style="text-align:right">'+money(x.d)+'</td><td style="text-align:right;color:'+(x.b>=0?'var(--grn)':'var(--red)')+'">'+money(x.b)+'</td></tr>'}).join('')+
+  '</table></div></div>'+
+  '<h2 class="sec">Meilleures ventes</h2><div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Produit</th><th style="text-align:right">Quantité</th><th style="text-align:right">Montant</th></tr>'+(tp.map(function(x){return '<tr><td>'+esc(x.n)+'</td><td style="text-align:right">'+fmtQty(x.q)+'</td><td style="text-align:right"><b>'+money(x.t)+'</b></td></tr>'}).join('')||'<tr><td colspan="3"><div class="empty"><span class="e">📈</span>Aucune vente sur cette période.</div></td></tr>')+'</table></div></div>'+
+  '<h2 class="sec">Dépenses par catégorie</h2><div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Catégorie</th><th style="text-align:right">Montant</th></tr>'+(cs.map(function(x){return '<tr><td>'+esc(x.c)+'</td><td style="text-align:right"><b>'+money(x.t)+'</b></td></tr>'}).join('')||'<tr><td colspan="2"><div class="empty"><span class="e">🧾</span>Aucune dépense sur cette période.</div></td></tr>')+'</table></div></div>'+
+  '<div class="card"><button class="btn btn-pri btn-block" onclick="exportExcel()">📊 Exporter le classeur Excel complet (.xlsx)</button><div class="hint" style="margin-top:8px">Génère le fichier Excel rempli avec toutes ses données (ventes, dépenses, stock) et le tableau de bord avec formules — à ouvrir avec Excel ou Google Sheets.</div></div>'+
+  '<div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn" onclick="printReport()">🖨 Imprimer</button><button class="btn" onclick="csvSales()">📄 Export ventes (CSV)</button><button class="btn" onclick="csvExpenses()">📄 Export dépenses (CSV)</button><button class="btn" onclick="goPage(\'sauvegarde\')">💾 Sauvegarde</button></div>');
+}
+
+/* ============================ RÉGLAGES ============================ */
+function viewReglages(){
+ const setAct=state.setAct||(bizActs()[0]?bizActs()[0].id:null);
+ const selAct=actById(setAct);
+ const prods=selAct?prodsOf(selAct.id):[];
+ const acts=DB.activities.map(function(a){
+  const typeLabel=a.type==='gaz'?'⛽ Gaz':(a.type==='food'?'🍗 Cuisine':'🏪 Autre / commun');
+  return '<div class="row"><div style="flex:1;min-width:0"><input class="inp" style="padding:8px 10px;font-size:14px" value="'+esc(a.name)+'" onchange="renAct(\''+a.id+'\',this.value)"><div class="small-txt" style="margin-top:2px">'+typeLabel+'</div></div>'+(a.type!=='gen'?'<button class="del" onclick="delAct(\''+a.id+'\')">🗑</button>':'')+'</div>';
+ }).join('');
+ const prodRows=prods.map(function(p){
+  return '<div class="row"><div style="flex:1;min-width:0"><input class="inp" style="padding:8px 10px;font-size:14px" value="'+esc(p.name)+'" onchange="renProd(\''+p.id+'\',this.value)"><div class="small-txt" style="margin-top:2px">'+kindLabel(p.kind)+(p.size?' · taille '+p.size:'')+(p.deposit?' · consigne '+money(p.deposit):'')+'</div></div><input class="inp" style="width:110px;padding:8px 10px;font-size:14px" type="text" inputmode="decimal" value="'+p.price+'" onchange="setPrice(\''+p.id+'\',this.value)"><button class="del" onclick="delProd(\''+p.id+'\')">🗑</button></div>';
+ }).join('');
+ const cats=DB.cats.map(function(c,i){return '<span class="pill" style="font-size:12.5px;padding:6px 10px;display:inline-flex;gap:6px;align-items:center;margin:0 6px 6px 0">'+esc(c)+'<button class="del" style="color:#94a3b8" onclick="delCat('+i+')">✕</button></span>'}).join('');
+ const cons=Object.keys(DB.settings.consignes).map(function(sz){return '<div class="grid2"><div class="field"><label>Consigne bouteille '+sz+' (F)</label><input class="inp" type="text" inputmode="decimal" id="sc_'+sz+'" value="'+DB.settings.consignes[sz]+'"></div></div>'}).join('');
+ return viewSub('⚙️ Réglages',
+  '<div class="card"><div class="field"><label>Nom de la boutique</label><input class="inp" id="sn" value="'+esc(DB.settings.businessName)+'"></div><button class="btn btn-sm btn-ghost" onclick="saveName()">Enregistrer le nom</button></div>'+
+  '<h2 class="sec">Activités</h2><div class="card">'+acts+'<button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="openAddActivity()">➕ Ajouter une activité</button></div>'+
+  '<h2 class="sec">Produits & prix</h2><div class="card"><div class="field"><label>Activité ★</label><select class="inp" onchange="state.setAct=this.value;render()">'+bizActs().map(function(a){return '<option value="'+a.id+'"'+(a.id===setAct?' selected':'')+'>'+esc(a.name)+'</option>'}).join('')+'</select></div>'+
+  (prods.length?'<div style="margin-top:8px">'+prodRows+'</div>':'<div class="empty" style="padding:14px"><span class="e">🏷</span>Aucun produit pour cette activité.</div>')+
+  '<button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="openAddProduct(\''+(setAct||'')+'\')">➕ Ajouter un produit</button></div>'+
+  '<h2 class="sec">Catégories de dépenses</h2><div class="card"><div>'+cats+'</div><div style="display:flex;gap:8px;margin-top:8px"><input class="inp" id="nc" placeholder="Nouvelle catégorie…" style="flex:1"><button class="btn btn-sm btn-ghost" onclick="addCat()">Ajouter</button></div></div>'+
+  '<h2 class="sec">Stock & consignes</h2><div class="card"><div class="grid2"><div class="field"><label>Alerte pleines si moins de…</label><input class="inp" type="text" inputmode="decimal" id="sp2" value="'+DB.settings.seuilPleines+'"></div><div class="field"><label>Alerte vides si plus de…</label><input class="inp" type="text" inputmode="decimal" id="sv2" value="'+DB.settings.seuilVides+'"></div></div><div style="margin-top:10px">'+cons+'</div>'+
+  '<div class="small-txt" style="margin:8px 0 4px"><b>Prix d\achat au dépôt (par bouteille)</b> — utilisé pour remplir automatiquement le montant des chargements :</div><div class="grid2">'+
+  sizes().map(function(sz){return '<div class="field"><label>'+sz+' (F)</label><input class="inp" type="text" inputmode="decimal" id="pa_'+sz+'" value="'+(DB.settings.prixAchat&&DB.settings.prixAchat[sz]!==undefined?DB.settings.prixAchat[sz]:'')+'"></div>'}).join('')+'</div>'+
+  '<button class="btn btn-sm btn-ghost" onclick="saveStockSettings()">Enregistrer</button></div>'+
+  '<h2 class="sec">Sécurité</h2><div class="card"><b>🔒 Code d\'accès</b><div class="hint" style="margin:6px 0 10px">Le code verrouille l\'application sur cet appareil. Choisis le même code sur tous les appareils pour ne pas t\'embrouiller.</div><div style="display:flex;gap:8px">'+(pinIsSet()?'<button class="btn btn-sm" style="flex:1" onclick="openChangePin()">Changer le code</button><button class="btn btn-sm btn-danger" style="flex:1" onclick="disablePin()">Désactiver</button>':'<button class="btn btn-sm btn-pri btn-block" onclick="openCreatePin()">Créer un code d\'accès</button>')+'</div></div>'+'<h2 class="sec">À propos</h2><div class="card" style="text-align:center"><div style="font-weight:800;font-size:16px">MISS KOUYATE SHOP</div><div class="small-txt" style="margin-top:4px">Application de gestion de boutique · v1.0</div><div class="small-txt" style="margin-top:8px">Conception & développement : <b>DOREGO SERVICES</b><br>📞 +225 0502657392</div><button class="btn btn-sm btn-ghost" style="margin-top:10px" onclick="goPage(\'mot\')">💌 Lire le petit mot</button></div>'+
+  '<h2 class="sec">Données</h2><div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn btn-sm" onclick="goPage(\'sauvegarde\')">💾 Sauvegarde & restauration</button><button class="btn btn-sm" onclick="confirmModal(\'Charger l\'exemple ?\',\'Les données actuelles seront remplacées par un exemple de 15 jours (elles seront sauvegardées automatiquement).\',function(){loadDemo()},\'Oui, charger\')">🧪 Voir un exemple</button><button class="btn btn-sm btn-danger" onclick="confirmModal(\'Tout effacer ?\',\'Toutes les ventes, dépenses et stocks seront supprimés définitivement. Pense à faire une sauvegarde avant !\',function(){wipeAll()},\'Oui, tout effacer\')">🗑 Tout effacer</button></div>');
+}
+
+/* ============================ COMPTABILITÉ ANALYTIQUE ============================ */
+function analytic(r){
+ const s=stats(r.a,r.b);
+ const biz=bizActs();
+ const rows=biz.map(function(a){const b=s.by[a.id];const marge=b.v-b.cmv-b.ch;return {id:a.id,name:a.name,v:b.v,cmv:b.cmv,d:b.ch,m:marge}});
+ const common=(s.by.gen?s.by.gen.ch:0);
+ const alloc=DB.settings.alloc||'sales';
+ const totalV=rows.reduce(function(t,x){return t+x.v},0);
+ rows.forEach(function(x){x.com=0});
+ if(alloc==='sales'&&totalV>0){rows.forEach(function(x){x.com=Math.round(common*x.v/totalV)})}
+ else if(alloc==='equal'&&rows.length){const part=Math.floor(common/rows.length);rows.forEach(function(x){x.com=part});const rest=common-part*rows.length;if(rest>0)rows[0].com+=rest}
+ rows.forEach(function(x){x.net=x.m-x.com;x.pct=(x.v>0?Math.round(x.m/x.v*100):0)});
+ return {rows:rows,common:common,totalV:totalV,s:s,alloc:alloc};
+}
+function viewAnalytique(){
+ const r=customRange('a');
+ const a=analytic(r);
+ const best=a.rows.slice().sort(function(x,y){return y.net-x.net})[0];
+ const seg=[['sales','Au prorata des ventes'],['equal','À parts égales'],['none','Pas de répartition']].map(function(x){return '<button class="chip'+(a.alloc===x[0]?' on':'')+'" onclick="DB.settings.alloc=\''+x[0]+'\';save();render()">'+x[1]+'</button>'}).join('');
+ const rows=a.rows.map(function(x){
+  const isBest=best&&best.id===x.id&&a.rows.length>1;
+  return '<tr'+(isBest?' style="background:#f0fdfa"':'')+'><td><b>'+(isBest?'⭐ ':'')+esc(x.name)+'</b></td>'+
+  '<td style="text-align:right">'+money(x.v)+'</td>'+
+  '<td style="text-align:right">'+(x.cmv>0?money(x.cmv):'—')+'</td>'+
+  '<td style="text-align:right">'+money(x.d)+'</td>'+
+  '<td style="text-align:right;font-weight:800;color:'+(x.m>=0?'var(--grn)':'var(--red)')+'">'+money(x.m)+'</td>'+
+  '<td style="text-align:right">'+(x.v===0?'—':x.pct+' %')+'</td>'+
+  '<td style="text-align:right">'+(a.alloc==='none'?'—':money(x.com))+'</td>'+
+  '<td style="text-align:right;font-weight:800;color:'+(x.net>=0?'var(--grn)':'var(--red)')+'">'+money(x.net)+'</td></tr>';
+ }).join('');
+ return viewSub('🧮 Rentabilité par activité',
+  periodPicker('a',[['day',"Aujourd'hui"],['week','Cette semaine'],['month','Ce mois'],['lastmonth','Mois dernier'],['all','Tout']])+
+  '<div class="small-txt" style="margin:2px 0 8px">Période : <b>'+rangeLabelFor('a')+'</b></div>'+
+  '<div class="kpis">'+kpi('Ventes (période)',money(a.s.ventes),'')+kpi('Coût du gaz vendu',money(a.s.cmv),'')+kpi('Charges (hors stock)',money(a.s.charges),'')+kpi('Bénéfice net global',money(a.s.ben),a.s.ben>=0?'good':'bad')+'</div>'+
+  '<div class="card"><b style="font-size:14px">Répartition des charges communes</b><div class="small-txt" style="margin:4px 0 8px">Les dépenses notées dans l\'activité « Général (commun) » (loyer, électricité, transport…) sont réparties sur chaque activité :</div><div class="chips" style="margin:0">'+seg+'</div>'+
+  '<div class="hint" style="margin-top:8px">💡 <b>Marge brute</b> = ventes − coût du gaz vendu − charges directes. Le gaz acheté mais pas encore vendu <b>reste un stock</b> (ce n\'est pas une perte) : on ne compte que le coût du gaz réellement vendu. <b>Résultat net</b> = marge brute − sa part des charges communes. C\'est le résultat net qui montre la vraie rentabilité de chaque activité.</div></div>'+
+  '<div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Activité</th><th style="text-align:right">Ventes</th><th style="text-align:right">Coût du gaz</th><th style="text-align:right">Charges directes</th><th style="text-align:right">Marge brute</th><th style="text-align:right">% marge</th><th style="text-align:right">Charges comm.</th><th style="text-align:right">Résultat net</th></tr>'+rows+
+  '<tr style="border-top:2px solid var(--ink)"><td><b>TOTAL</b></td><td style="text-align:right;font-weight:800">'+money(a.s.ventes)+'</td><td style="text-align:right;font-weight:800">'+money(a.s.cmv)+'</td><td style="text-align:right;font-weight:800">'+money(a.s.charges-a.common)+'</td><td style="text-align:right;font-weight:800">'+money(a.s.ventes-a.s.cmv-(a.s.charges-a.common))+'</td><td style="text-align:right">—</td><td style="text-align:right;font-weight:800">'+money(a.common)+'</td><td style="text-align:right;font-weight:800;color:'+(a.s.ben>=0?'var(--grn)':'var(--red)')+'">'+money(a.s.ben)+'</td></tr>'+
+  '</table></div></div>'+
+  '<div class="card"><b>📦 Stock de gaz en valeur</b><div class="small-txt" style="margin:4px 0">Pleines au prix d" + BS + "achat + vides au coût d" + BS + "achat : <b>'+money(stockValueGaz())+'</b> — c" + BS + "est de la valeur disponible, pas une perte.</div></div>'+
+  (best?'<div class="alert ok">⭐ Activité la plus rentable sur la période : <b>'+esc(best.name)+'</b> ('+money(best.net)+' de résultat net).</div>':'')+
+  '<div class="small-txt" style="color:var(--mut);margin-top:4px">La répartition des charges communes est une estimation. Pour des résultats plus précis, note chaque dépense dans la bonne activité.</div>');
+}
+
+/* ============================ LE PETIT MOT ============================ */
+function viewMot(){
+ return viewSub('💌 Un mot pour toi',
+  '<div class="card" style="text-align:center;padding:26px 18px;background:linear-gradient(180deg,#fff7ed,#ffffff)">'+
+  '<div style="font-size:44px">💌</div>'+
+  '<div style="font-size:17px;font-weight:800;margin-top:10px;color:var(--pri2)">Un petit mot pour toi, Miss Kouyaté</div>'+
+  '<div style="color:#475569;line-height:1.8;margin-top:12px;text-align:left">Salut Miss Kouyaté,<br><br>Cet outil, je l\'ai préparé pour t\'accompagner dans ton travail : tes magasins de gaz, ton poisson et poulet braisé du week-end, tes repas sur commande… Tout y est pour t\'aider à suivre tes ventes, tes dépenses et ton bénéfice, simplement.<br><br>C\'est juste un coup de pouce — le plus important, c\'est toi : ton courage, ton sérieux et ta volonté d\'avancer. Travailler à son compte demande beaucoup, et tu es déjà sur la bonne voie.<br><br>Continue comme ça, et n\'oublie pas de regarder tes progrès de temps en temps : les chiffres te montreront que tu avances, jour après jour.<br><br>Bonne chance dans ton business. Que ça grandisse, petit à petit ! 🌱</div>'+
+  '<div style="margin-top:16px;font-weight:800;color:var(--pri2)">Nabil — Emeka 😊</div>'+
+  '<div class="small-txt" style="color:var(--mut);margin-top:2px">Nabil Do-Rego (Aremou)</div>'+
+  '<div class="small-txt" style="color:var(--mut);margin-top:12px;border-top:1px dashed var(--line);padding-top:10px">Application conçue par <b>DOREGO SERVICES</b><br>📞 +225 0502657392</div>'+
+  '</div>');
+}
+
+/* ============================ MENU / PLUS ============================ */
+function viewPlus(){
+ if(state.page==='credits')return viewCredits();
+ if(state.page==='fournisseurs')return viewFournisseurs();
+ if(state.page==='mouvements')return viewMouvements();
+ if(state.page==='rapports')return viewRapports();
+ if(state.page==='analytique')return viewAnalytique();
+ if(state.page==='mot')return viewMot();
+ if(state.page==='reglages')return viewReglages();
+ if(state.page==='sauvegarde')return viewSauvegarde();
+ if(state.page==='guide')return viewGuide();
+ const d=debts();const totDet=d.reduce(function(t,x){return t+x.due},0);
+ return '<h2 style="margin:14px 0 10px;font-size:20px">Menu</h2><div class="menu-grid">'+
+  '<button class="menu-item" onclick="goPage(\'credits\')"><div class="e">🤝</div><div class="n">Crédits clients</div><div class="d">'+(totDet>0?d.length+' client(s) · '+money(totDet):'Dettes et remboursements')+'</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'fournisseurs\')"><div class="e">🏭</div><div class="n">Consignations fournisseurs</div><div class="d">Argent immobilisé chez les dépôts</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'mouvements\')"><div class="e">📦</div><div class="n">Mouvements de stock</div><div class="d">Tout l\'historique des bouteilles</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'rapports\')"><div class="e">📊</div><div class="n">Rapports</div><div class="d">Périodes, bénéfices, export</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'analytique\')"><div class="e">🧮</div><div class="n">Rentabilité par activité</div><div class="d">Comptabilité analytique : marge & résultat net</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'mot\')"><div class="e">💌</div><div class="n">Un mot pour toi</div><div class="d">Un message de motivation</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'reglages\')"><div class="e">⚙️</div><div class="n">Réglages</div><div class="d">Activités, produits, prix</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'sauvegarde\')"><div class="e">💾</div><div class="n">Sauvegarde</div><div class="d">Exporter / restaurer les données</div></button>'+
+  '<button class="menu-item" onclick="goPage(\'guide\')"><div class="e">❓</div><div class="n">Guide</div><div class="d">Comment utiliser l\'application</div></button>'+
+  '<button class="menu-item" onclick="go(\'stock\')"><div class="e">📦</div><div class="n">Stock</div><div class="d">Bouteilles & ingrédients</div></button>'+
+'<button class="menu-item" onclick="showLock()"><div class="e">🔒</div><div class="n">Verrouiller</div><div class="d">Protéger l\'accès</div></button>'+ '</div>'+
+ '<div class="small-txt" style="text-align:center;margin-top:18px;color:var(--mut)">Conçu avec ❤️ par DOREGO SERVICES<br>📞 +225 0502657392</div>';
+}
+
+/* ============================ SAUVEGARDE ============================ */
+function syncCard(){
+ const s=DB.settings.sync||{url:'',key:'',pass:''};
+ const st=syncStatus();
+ const statusHtml=st?('<div class="hint" style="margin-top:8px">'+(st.ok?'✅ ':'⚠️ ')+'Dernière tentative : '+fmtD(dISO(new Date(st.when)))+' à '+fmtTime(st.when)+(st.ok&&st.ts?' — en ligne ✓':(st.why?' — '+esc(st.why):''))+'</div>'):'';
+ return '<div class="card"><b>☁️ Synchronisation en ligne (optionnel)</b>'+
+  '<div class="hint" style="margin:6px 0 10px">Les données se sauvegardent aussi en ligne : accessibles depuis n\'importe quel appareil, et elles partent automatiquement dès que la connexion revient (elle peut enregistrer hors connexion sans problème). Mise en place : voir le guide (5 minutes, gratuit avec Supabase).</div>'+
+  '<div class="field"><label>Adresse du projet (URL)</label><input class="inp" id="sy_url" placeholder="https://xxxx.supabase.co" value="'+esc(s.url)+'"></div>'+
+  '<div class="field"><label>Clé publique (anon key)</label><input class="inp" id="sy_key" placeholder="eyJhbGciOi..." value="'+esc(s.key)+'"></div>'+
+  '<div class="grid2"><div class="field"><label>Mot de passe de synchro</label><input class="inp" id="sy_pass" placeholder="le même sur tous les appareils" value="'+esc(s.pass)+'"></div><div class="field"><label>&nbsp;</label><button class="btn btn-sm btn-ghost" style="width:100%;min-height:46px" onclick="document.getElementById(\'sy_pass\').value=genSyncPass()">🎲 Générer un mot de passe</button></div></div>'+
+  '<div class="small-txt" style="margin-top:4px">💡 Copie ce mot de passe sur chaque appareil (ex : WhatsApp).</div>'+
+  '<button class="btn btn-sm btn-pri btn-block" style="margin-top:10px" onclick="saveSyncConfig()">💾 Enregistrer la configuration</button>'+
+  '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-sm" style="flex:1" onclick="syncNow()">📤 Envoyer en ligne</button><button class="btn btn-sm" style="flex:1" onclick="pullNow()">📥 Récupérer</button></div>'+
+  statusHtml+'</div>';
+}
+function viewSauvegarde(){
+ const json=JSON.stringify({app:'gestion-boutique',version:DB.v,exported:dISO(),db:DB},null,1);
+ return viewSub('💾 Sauvegarde',
+  '<div class="card"><div class="hint">📌 <b>Important :</b> les données sont enregistrées <b>sur cet appareil</b> (dans le navigateur). Si tu changes de téléphone ou si tu effaces les données du navigateur, tu perds tout. Fais une sauvegarde régulière (ex : chaque dimanche soir) et garde le fichier en sécurité (WhatsApp, email…).</div></div>'+
+  '<div class="card"><b>Exporter les données</b><div class="hint" style="margin:6px 0 10px">Télécharge un fichier de sauvegarde, ou copie le texte ci-dessous pour l\'envoyer par WhatsApp.</div><button class="btn btn-pri btn-block" onclick="exportJSON()">⬇️ Télécharger la sauvegarde</button><button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="exportExcel()">📊 Exporter le classeur Excel rempli (.xlsx)</button><textarea class="inp" id="bk" style="margin-top:10px" readonly onclick="this.select()">'+esc(json)+'</textarea><button class="btn btn-sm btn-ghost btn-block" style="margin-top:8px" onclick="copyBackup()">📋 Copier le texte de sauvegarde</button></div>'+
+  '<div class="card"><b>Restaurer une sauvegarde</b><div class="hint" style="margin:6px 0 10px">Choisis un fichier de sauvegarde (.json) téléchargé avant. Les données actuelles seront remplacées.</div><input class="inp" type="file" id="fr" accept=".json,application/json" onchange="doRestore(event)"></div>'+
+  syncCard()+
+  '<div class="card"><b>Données d\'exemple</b><div class="hint" style="margin:6px 0 10px">⚠️ Pour découvrir seulement. Tes données actuelles sont <b>sauvegardées automatiquement</b> avant, et restaurées avec le bouton ci-dessous.</div><button class="btn btn-sm btn-ghost btn-block" onclick="confirmModal(\'Charger l\'exemple ?\',\'Les données actuelles seront remplacées par un exemple de 15 jours (elles seront sauvegardées automatiquement).\',function(){loadDemo()},\'Oui, charger\')">🧪 Charger les données d\'exemple</button>'+(hasPreDemoBackup()?'<button class="btn btn-sm btn-ghost btn-block" style="margin-top:8px" onclick="restorePreDemo()">↩️ Restaurer mes données (avant l\'exemple)</button>':'')+'</div>'+
+  '<div class="card"><b>Zone dangereuse</b><button class="btn btn-sm btn-danger btn-block" style="margin-top:8px" onclick="confirmModal(\'Tout effacer ?\',\'Toutes les ventes, dépenses et stocks seront supprimés définitivement.\',function(){wipeAll()},\'Oui, tout effacer\')">🗑 Effacer toutes les données</button></div>');
+}
+
+/* ============================ GUIDE ============================ */
+function viewGuide(){
+ function sec(t,c){return '<div class="card"><b style="font-size:15px">'+t+'</b><div class="hint" style="margin-top:6px;line-height:1.6">'+c+'</div></div>'}
+ return viewSub('❓ Guide d\'utilisation',
+  sec('1. Au premier démarrage','Va dans <b>Menu → Réglages</b> : mets le nom de la boutique, vérifie les activités, les produits et <b>surtout les prix</b> (les prix proposés sont des exemples à modifier).')+
+  sec('2. Les ventes','Onglet <b>Ventes</b> → choisis l\'activité → tape sur le produit pour l\'enregistrer. Choisis le paiement : 💵 Espèces, 📱 Mobile Money ou 🤝 Crédit (avec le nom du client).')+
+  sec('3. Les dépenses','Onglet <b>Dépenses</b> → ➕ Nouvelle dépense → choisis l\'activité, la catégorie (achat gaz, poisson, transport…) et le montant.')+
+  sec('4. Le stock de gaz','Onglet <b>Stock</b>. Vente de recharge = le client apporte sa bouteille vide et repart avec une pleine : automatiquement pleines −1, vides +1, total inchangé. Le total de bouteilles en main ne change qu\'avec : consignations (+), restitutions (−), achats de vides (+), ventes définitives (−) et pertes (−). <b>Vente définitive</b> = le client achète la bouteille (total −1). Au 🛢 <b>Chargement</b>, l\'application compare toute seule pleines reçues et vides rendues : la différence = nouvelle consignation ou restitution (le nom du fournisseur est enregistré), et la dépense est créée automatiquement avec le prix d\'achat. 🔥 <b>Perte</b> pour les bouteilles cassées ou volées. Et dans <b>Menu → 📦 Mouvements de stock</b>, tout l\'historique est visible. Au tout début, utilise <b>Ajuster</b> pour saisir ton stock réel.')+
+  sec('5. Les crédits','Dans <b>Menu → Crédits clients</b> : tu vois qui doit combien. Utilise <b>💵 Encaisser</b> quand le client paie.')+
+  sec('6. Les consignations fournisseurs','Dans <b>Menu → 🏭 Consignations fournisseurs</b> : note l\'argent que tu as <b>versé</b> aux dépôts comme consignation pour leurs bouteilles, et les <b>remboursements</b> quand tu rends des bouteilles. Ce n\'est pas une dépense : c\'est de l\'argent immobilisé que tu récupéreras.')+
+  sec('7. Voir ses bénéfices','L\'<b>Accueil</b> montre ventes, dépenses, bénéfice (aujourd\'hui, semaine, mois). <b>Menu → Rapports</b> permet de choisir n\'importe quelle période et d\'imprimer.')+
+  sec('8. Sauvegarder (très important !)','Les données restent sur l\'appareil. Va dans <b>Menu → Sauvegarde</b> chaque semaine : télécharge le fichier ou copie le texte et garde-le (WhatsApp, email). Pour changer de téléphone : envoie-toi le fichier, ouvre l\'application sur le nouveau téléphone puis <b>Restaurer</b>.')+
+  sec('9. Conseils','Enregistre chaque vente tout de suite (ça prend 5 secondes). Si tu oublies une journée, tu peux changer la date dans le formulaire de vente. Pour le poisson/poulet braisé et les repas : note aussi tes achats d\'ingrédients en dépenses pour voir le vrai bénéfice de chaque activité.'));
+}
+
+/* ============================ Modales ============================ */
+let modalCb=null,modalSecondary=null;
+function openModal(title,body,opts){
+ opts=opts||{};
+ closeModal();
+ const root=$('#modal-root');
+ root.innerHTML='<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="sheet">'+
+  '<div class="sheet-head"><button type="button" class="icon-btn" onclick="closeModal()">✕</button><h3>'+esc(title)+'</h3></div>'+
+  '<form onsubmit="return submitModal(event)" novalidate><div class="sheet-body">'+body+'</div>'+
+  (opts.primary===false?'':'<div class="sheet-foot">'+(opts.secondary?'<button type="button" class="btn" onclick="runSecondary()">'+opts.secondary.label+'</button>':'')+'<button type="button" class="btn" onclick="closeModal()">Annuler</button><button class="btn btn-pri" type="submit">'+(opts.primary||'Enregistrer')+'</button></div>')+
+  '</form></div></div>';
+ modalCb=opts.onSubmit||null;modalSecondary=opts.secondary||null;
+ try{var el=document.querySelector('#modal-root .inp, #modal-root select.inp');if(el&&typeof el.focus==='function')el.focus()}catch(e){}
+}
+function runSecondary(){if(modalSecondary){if(typeof modalSecondary.fn==='function')modalSecondary.fn();else modalSecondary()}closeModal()}
+function submitModal(e){e.preventDefault();if(modalCb){const r=modalCb();if(r===false)return false}closeModal();return false}
+function closeModal(){$('#modal-root').innerHTML='';modalCb=null}
+function confirmModal(title,msg,onYes,btnLabel){
+ openModal(title,'<p style="margin:0;color:#475569;line-height:1.5">'+msg+'</p>',{primary:btnLabel||'Oui, confirmer',onSubmit:function(){if(onYes)onYes()}});
+}
+function toast(msg){const r=$('#toast-root');r.innerHTML='<div class="toast">'+esc(msg)+'</div>';clearTimeout(toast._t);toast._t=setTimeout(function(){r.innerHTML=''},2600)}
+function val(id){const el=document.getElementById(id);return el?el.value:''}
+
+/* ============================ Ventes ============================ */
+let curPay='esp',curSalePid=null,curChargAct=null,curRetAct=null,curAchatAct=null,curPerteAct=null,curCautType=null,curAjustAct=null,curAjustSize=null;
+function doQuickSale(){
+ const act=val('vq_act'),prod=val('vq_prod');
+ if(!act){toast('Choisis le magasin / l\'activité');return}
+ if(!prod){toast('Choisis le produit');return}
+ openSale(prod);
+}
+function openFreeSale(actId){
+ const acts=bizActs();
+ openModal('Nouvelle vente (libre)',
+  '<div class="field"><label>Activité ★</label><select class="inp" id="f_act">'+acts.map(function(a){return '<option value="'+a.id+'"'+(a.id===actId?' selected':'')+'>'+esc(a.name)+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Désignation ★</label><input class="inp" id="f_name" placeholder="Ex : Poisson braisé extra"></div>'+
+  '<div class="grid2"><div class="field"><label>Quantité ★</label><div class="qty-ctl"><button type="button" onclick="stepQ(\'f_qty\',-1)">−</button><input class="inp" id="f_qty" type="text" inputmode="decimal" value="1" oninput="calcSaleFree()"><button type="button" onclick="stepQ(\'f_qty\',1)">+</button></div></div>'+
+  '<div class="field"><label>Prix unitaire (F) ★</label><input class="inp" id="f_price" type="text" inputmode="decimal" value="" oninput="calcSaleFree()"></div></div>'+
+  '<div class="field"><label>Total</label><div style="font-size:20px;font-weight:800;color:var(--tea)" id="f_total">0 F</div></div>'+
+  '<div class="field"><label>Paiement</label><div class="seg"><button type="button" class="on" id="payEsp" onclick="setPay(\'esp\')">💵 Espèces</button><button type="button" id="payMm" onclick="setPay(\'mm\')">📱 Mobile Money</button><button type="button" id="payCr" onclick="setPay(\'credit\')">🤝 Crédit</button></div></div>'+
+  '<div class="field" id="clientWrap" style="display:none"><label>Nom du client</label><input class="inp" id="f_client" list="clients-list" placeholder="Ex : Aya K."><datalist id="clients-list">'+clientNames().map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist></div>'+
+  '<div class="field"><label>Date ★</label><input class="inp" id="f_date" type="date" value="'+dISO()+'"></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="f_note" placeholder="Ex : livraison, commande de…"></div>',
+  {primary:'Enregistrer la vente',onSubmit:function(){
+   const act=val('f_act'),name=val('f_name').trim(),q=Math.max(0,num(val('f_qty'))),price=num(val('f_price')),date=val('f_date')||dISO(),note=val('f_note').trim(),client=val('f_client').trim();
+   if(!name){toast('Écris la désignation');return false}
+   if(q<=0){toast('Mets une quantité');return false}
+   if(price<=0){toast('Mets le prix');return false}
+   if(curPay==='credit'&&!client){toast('Écris le nom du client (crédit)');return false}
+   DB.sales.unshift({id:uid(),ts:Date.now(),date:date,act:act,name:name,prod:'',qty:q,price:price,pay:curPay,client:curPay==='credit'?client:'',note:note,total:Math.round(q*price)});
+   save();toast('Vente enregistrée ✓');render();return true;
+  }});
+ curPay='esp';
+}
+function calcSaleFree(){const t=$('#f_total');if(t)t.textContent=money(num(val('f_qty'))*num(val('f_price')))}
+function openSale(pid){
+ const p=prodById(pid);if(!p)return;
+ curSalePid=pid;
+ const bouteille=p.kind==='bouteille';const definitive=p.kind==='definitive';
+ openModal('Nouvelle vente',
+  '<div style="background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px 12px"><b>'+esc(p.name)+'</b><div class="small-txt">'+esc(actName(p.act))+' · prix habituel : '+money(p.price)+'</div>'+(definitive?'<div class="small-txt" style="color:var(--amb);margin-top:4px">💡 Le client <b>achète</b> la bouteille : elle sort définitivement du stock (total −1). Pas de consigne.</div>':(bouteille?'<div class="small-txt" style="color:var(--amb);margin-top:4px">⚠️ Cas « client venu <b>sans</b> bouteille » : il paie une consigne de '+money(p.deposit||0)+' (gardée en caution) et la bouteille passe « chez clients ».</div>':''))+'</div>'+
+  '<div class="grid2"><div class="field"><label>Quantité ★</label><div class="qty-ctl"><button type="button" onclick="stepQ(\'s_qty\',-1)">−</button><input class="inp" id="s_qty" type="text" inputmode="decimal" value="1" oninput="calcSaleProd()"><button type="button" onclick="stepQ(\'s_qty\',1)">+</button></div></div>'+
+  '<div class="field"><label>Prix unitaire (F) ★</label><input class="inp" id="s_price" type="text" inputmode="decimal" value="'+p.price+'" oninput="calcSaleProd()"></div></div>'+
+  '<div class="field"><label>Total</label><div style="font-size:20px;font-weight:800;color:var(--tea)" id="s_total">'+money(p.price)+'</div></div>'+
+  '<div id="s_conseq"></div>'+
+  '<div class="field"><label>Paiement</label><div class="seg"><button type="button" class="on" id="payEsp" onclick="setPay(\'esp\')">💵 Espèces</button><button type="button" id="payMm" onclick="setPay(\'mm\')">📱 Mobile Money</button><button type="button" id="payCr" onclick="setPay(\'credit\')">🤝 Crédit</button></div></div>'+
+  '<div class="field" id="clientWrap" style="display:none"><label>Nom du client</label><input class="inp" id="s_client" list="clients-list" placeholder="Ex : Aya K."><datalist id="clients-list">'+clientNames().map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist></div>'+
+  '<div class="field"><label>Date ★</label><input class="inp" id="s_date" type="date" value="'+dISO()+'"></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="s_note" placeholder="Ex : livraison quartier"></div>',
+  {primary:'Enregistrer la vente',onSubmit:function(){return saveSale(pid)}});
+ calcSaleConseq();
+ curPay='esp';
+}
+function calcSaleProd(){const t=$('#s_total');if(t)t.textContent=money(num(val('s_qty'))*num(val('s_price')));calcSaleConseq()}
+/* Aperçu de conséquence AVANT d'enregistrer une vente */
+function calcSaleConseq(){
+ const el=document.getElementById('s_conseq');if(!el)return;
+ const p=prodById(curSalePid);if(!p){el.innerHTML='';return}
+ const q=Math.max(0,Math.round(num(val('s_qty'))));
+ if(q<=0){el.innerHTML='';return}
+ const st=(p.size&&actById(p.act))?stockOf(p.act,p.size):null;
+ if(p.kind==='recharge'&&st){
+  const nP=Math.max(0,st.pleines-q);
+  const warn=st.pleines<q?'<div class="small-txt" style="color:var(--red);margin-top:4px">⚠️ Attention : pas assez de pleines en stock ('+st.pleines+' seulement).</div>':'';
+  el.innerHTML='<div class="alert ok" style="margin-top:8px">📦 <b>Conséquence (échange client) :</b> le client apporte sa bouteille vide et repart avec une pleine.<br><span class="small-txt">Pleines : '+st.pleines+' → '+nP+' · Vides : '+st.vides+' → '+(st.vides+q)+' · <b>Total bouteilles en main : inchangé</b> ('+(st.pleines+st.vides+st.cons)+').</span>'+warn+'</div>';
+ }else if(p.kind==='definitive'&&st){
+  const nP2=Math.max(0,st.pleines-q);
+  const warn2=st.pleines<q?'<div class="small-txt" style="color:var(--red);margin-top:4px">⚠️ Attention : pas assez de pleines en stock ('+st.pleines+' seulement).</div>':'';
+  el.innerHTML='<div class="alert" style="margin-top:8px">📦 <b>Conséquence (vente définitive) :</b> le client achète la bouteille, elle sort <b>définitivement</b> du stock.<br><span class="small-txt">Pleines : '+st.pleines+' → '+nP2+' · <b>Total en main : −'+q+'</b> ('+(st.pleines+st.vides+st.cons)+' → '+(nP2+st.vides+st.cons)+').</span>'+warn2+'</div>';
+ }else{
+  el.innerHTML='<div class="alert ok" style="margin-top:8px">📦 Aucun effet sur le stock de bouteilles (vente simple).</div>';
+ }
+ if(st&&p.size&&q>0&&(p.kind==='recharge'||p.kind==='definitive'||p.kind==='bouteille')){
+  const pa=(DB.settings.prixAchat||{})[p.size]||0;
+  const avg=bottleAvgCost(p.act,p.size);
+  const sp=salePriceForSize(p.act,p.size);
+  const nP=Math.max(0,st.pleines-q);
+  const nV=(p.kind==='recharge')?st.vides+q:st.vides;
+  const va=Math.round(nP*pa+nV*avg),vv=Math.round(nP*sp+nV*avg);
+  el.innerHTML+='<div class="small-txt" style="margin-top:6px;border-top:1px dashed var(--line);padding-top:6px">💰 <b>Valeur du stock après la vente</b> : achat <b>'+money(va)+'</b> · vente <b>'+money(vv)+'</b>'+(vv>va?' · marge potentielle <b>'+money(vv-va)+'</b>':'')+'</div>';
+ }
+}
+function setPay(p){
+ curPay=p;
+ const segs=document.querySelectorAll('#modal-root .seg button');
+ for(let i=0;i<segs.length;i++)segs[i].classList.remove('on');
+ const map={esp:'payEsp',mm:'payMm',credit:'payCr'};
+ const el=document.getElementById(map[p]);if(el)el.classList.add('on');
+ const w=$('#clientWrap');if(w)w.style.display=p==='credit'?'':'none';
+}
+function stepQ(id,dir){const el=document.getElementById(id);if(!el)return;let v=num(el.value);v=Math.max(0,v+dir);el.value=String(v)}
+function saveSale(pid){
+ const p=prodById(pid);if(!p)return false;
+ const q=Math.max(0,num(val('s_qty'))),price=num(val('s_price')),date=val('s_date')||dISO(),client=val('s_client').trim(),note=val('s_note').trim();
+ if(q<=0){toast('Mets une quantité');return false}
+ if(curPay==='credit'&&!client){toast('Écris le nom du client (crédit)');return false}
+ /* Règle : pas de stock → pas de vente (recharge ou vente de bouteille) */
+ if(p.size&&(p.kind==='recharge'||p.kind==='definitive'||p.kind==='bouteille')){
+  const st=stockOf(p.act,p.size);
+  if(st.pleines<q){toast('❌ Vente impossible : pas assez de stock — '+st.pleines+' bouteille(s) '+p.size+' pleine(s) en magasin.');return false}
+ }
+ const s={id:uid(),ts:Date.now(),date:date,act:p.act,name:p.name,prod:p.id,qty:q,price:price,pay:curPay,client:curPay==='credit'?client:'',note:note,total:Math.round(q*price),kind:p.kind};
+ if(p.kind==='recharge'&&p.size){s.effects={act:p.act,size:p.size,p:-q,v:q,c:0};applyEf(s.effects,1);addMove(p.act,p.size,'vente-recharge',-q,q,0,p.name,client||note);}
+ else if(p.kind==='definitive'&&p.size){s.effects={act:p.act,size:p.size,p:-q,v:0,c:0};applyEf(s.effects,1);addMove(p.act,p.size,'vente-definitive',-q,0,0,p.name,client||note);}
+ DB.sales.unshift(s);let recap='';if(s.effects&&s.effects.size)recap=' · '+stockRecap(s.effects.act,s.effects.size);save();toast('Vente enregistrée ✓'+recap);render();return true;
+}
+function delSale(id){
+ const s=DB.sales.find(function(x){return x.id===id});if(!s)return;
+ confirmModal('Supprimer cette vente ?','« '+esc(s.name)+' » de '+money(s.total)+' du '+fmtD(s.date)+'. Le stock sera recalculé.',function(){
+  if(s.effects){applyEf(s.effects,-1);clampStock(s.effects.act,s.effects.size);addMove(s.effects.act,s.effects.size,'annulation-vente',-s.effects.p,-s.effects.v,-s.effects.c,'Annulation : '+s.name,'')}
+  DB.sales=DB.sales.filter(function(x){return x.id!==id});
+  save();toast('Vente supprimée');render();
+ });
+}
+
+/* ============================ Dépenses ============================ */
+let curCat=null;
+function openExpense(){
+ if(!curCat)curCat=DB.cats[0]||'Autre';
+ openModal('Nouvelle dépense',
+  '<div class="field"><label>Activité ★</label><select class="inp" id="e_act">'+DB.activities.map(function(a){return '<option value="'+a.id+'">'+esc(a.name)+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Catégorie ★</label><div class="chips" style="margin:0">'+DB.cats.map(function(c,i){return '<button type="button" class="chip'+(c===curCat?' on':'')+'" style="padding:6px 12px;font-size:12.5px" onclick="setCat('+i+')">'+esc(c)+'</button>'}).join('')+'</div></div>'+
+  '<div class="field"><label>Montant (F) ★</label><input class="inp" id="e_amount" type="text" inputmode="decimal" placeholder="Ex : 25000"></div>'+
+  '<div class="field"><label>Libellé ★</label><input class="inp" id="e_label" placeholder="Ex : Chargement 10 bouteilles B12.5"></div>'+
+  '<div class="field"><label>Date ★</label><input class="inp" id="e_date" type="date" value="'+dISO()+'"></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="e_note"></div>',
+  {primary:'Enregistrer la dépense',onSubmit:function(){
+   const amount=num(val('e_amount')),date=val('e_date')||dISO();
+   if(amount<=0){toast('Mets le montant');return false}
+   DB.expenses.unshift({id:uid(),ts:Date.now(),date:date,act:val('e_act'),cat:curCat||'Autre',label:val('e_label').trim()||curCat||'Autre',amount:Math.round(amount),note:val('e_note').trim()});
+   save();toast('Dépense enregistrée ✓');render();return true;
+  }});
+}
+function setCat(i){curCat=DB.cats[i];const chips=document.querySelectorAll('#modal-root .chips .chip');for(let j=0;j<chips.length;j++)chips[j].classList.toggle('on',j===i)}
+function delExpense(id){
+ const e=DB.expenses.find(function(x){return x.id===id});if(!e)return;
+ confirmModal('Supprimer cette dépense ?','« '+esc(e.label||e.cat)+' » de '+money(e.amount)+' du '+fmtD(e.date)+'. Le stock lié sera recalculé.',function(){
+  if(e.effects){applyEf(e.effects,-1);clampStock(e.effects.act,e.effects.size);addMove(e.effects.act,e.effects.size,'annulation-chargement',-e.effects.p,-e.effects.v,-e.effects.c,'Annulation : '+ (e.label||e.cat),'')}
+  DB.expenses=DB.expenses.filter(function(x){return x.id!==id});
+  save();toast('Dépense supprimée');render();
+ });
+}
+
+/* ============================ Stock gaz ============================ */
+function openChargement(act){
+ curChargAct=act;
+ openModal('🛢 Chargement gaz — '+esc(actName(act)),
+  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="c_size" onchange="calcChargementDiff()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Pleines reçues</label><input class="inp" id="c_p" type="text" inputmode="decimal" value="0" oninput="calcChargementDiff()"></div>'+
+  '<div class="field"><label>Vides rendues</label><input class="inp" id="c_v" type="text" inputmode="decimal" value="0" oninput="calcChargementDiff()"></div>'+
+  '<div class="field"><label>Montant payé (F) ★</label><input class="inp" id="c_amt" type="text" inputmode="decimal" placeholder="0 = pas de dépense" oninput="this.dataset.touched=\'1\'"><div class="small-txt" style="margin-top:3px">🤖 Rempli automatiquement : pleines reçues × prix d\achat (Réglages). Modifiable.</div></div></div>'+
+  '<div class="field"><label>Fournisseur (dépôt) ★</label><input class="inp" id="c_sup" placeholder="Ex : Dépôt Total" list="sup-list"><datalist id="sup-list">'+knownSuppliers().map(function(sn){return '<option value="'+esc(sn)+'">'}).join('')+'</datalist></div>'+'<div id="c_diff"></div>'+
+  '<div id="c_cons_wrap" style="display:none;border:1px solid #fde68a;background:#fffbeb;border-radius:10px;padding:10px 12px">'+
+  '<div class="small-txt" style="margin-bottom:8px">📦 La différence entre pleines reçues et vides rendues = <b>nouvelles bouteilles gardées</b> (nouvelle consignation) ou <b>bouteilles restituées</b> (remboursement de consignation).</div>'+
+  '<label style="display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:700"><input type="checkbox" id="c_cons_auto" checked> Enregistrer dans « Consignations fournisseurs »</label>'+
+  '<div class="grid2" style="margin-top:8px">'+
+  '<div class="field"><label>Montant consignation (F) ★</label><input class="inp" id="c_cons_amt" type="text" inputmode="decimal" placeholder="0 = pas saisi"></div></div></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="c_note" placeholder="Ex : livraison dépôt"></div>',
+  {primary:'Valider le chargement',onSubmit:function(){
+   const sz=val('c_size'),N=Math.max(0,Math.round(num(val('c_p')))),M=Math.max(0,Math.round(num(val('c_v')))),amt=Math.round(num(val('c_amt'))),note=val('c_note').trim();
+   if(N===0&&M===0){toast('Renseigne les quantités');return false}
+   const sup=val('c_sup').trim();
+   const st=stockOf(act,sz);
+   st.pleines+=N;st.vides-=M;
+   if(st.vides<0){toast('⚠️ Plus de vides rendues que de vides en stock');st.vides=0}
+   clampStock(act,sz);
+   addMove(act,sz,'chargement',N,-M,0,'Chargement '+sz,'');
+   logStock(act,'Chargement : +'+N+' pleine(s) '+sz+' reçue(s), −'+M+' vide(s) rendue(s)');
+   if(amt>0){DB.expenses.unshift({id:uid(),ts:Date.now(),date:dISO(),act:act,cat:'Achat gaz',label:'Chargement '+sz+' ×'+N+(M?(' (retour '+M+' vides)'):'')+(sup?(' — '+sup):''),amount:amt,note:(sup?('Dépôt : '+sup+(note?' · ':'')):'')+note,effects:{act:act,size:sz,p:N,v:-M,c:0}})}
+   const diff=N-M;
+   const chk=document.getElementById('c_cons_auto');
+   if(diff!==0&&chk&&chk.checked){
+    const cAmt=Math.round(num(val('c_cons_amt')));
+    if(!sup){toast('Écris le nom du fournisseur (important !)');return false}
+    DB.supplierCautions.unshift({id:uid(),ts:Date.now(),date:dISO(),supplier:sup,type:diff>0?'in':'out',amount:cAmt,note:'Via chargement ('+sz+')',act:act,size:sz,qty:Math.abs(diff),state:diff>0?'pleines':'vides',via:'chargement'});
+    addMove(act,sz,diff>0?'consignation-in':'consignation-out',0,0,0,(diff>0?'Nouvelle consignation : +':'Restitution consignation : −')+Math.abs(diff)+' bouteille(s) '+sz,sup);
+   }
+   save();toast('Chargement enregistré ✓ · '+stockRecap(act,sz));render();return true;
+  }});
+ setTimeout(calcChargementDiff,50);
+}
+function calcChargementDiff(){
+ const el=document.getElementById('c_diff'),wrap=document.getElementById('c_cons_wrap');
+ if(!el)return;
+ const N=Math.max(0,Math.round(num(val('c_p')))),M=Math.max(0,Math.round(num(val('c_v'))));
+ const diff=N-M;
+ /* Montant auto : pleines reçues × prix d'achat (si pas modifié à la main) */
+ const amtEl=document.getElementById('c_amt');
+ if(amtEl&&N>0&&amtEl.dataset.touched!=='1'){
+  const sz2=val('c_size');const pa=(DB.settings.prixAchat||{})[sz2]||0;
+  amtEl.value=String(Math.round(N*pa));
+ }
+ if(N===0&&M===0){el.innerHTML='';if(wrap)wrap.style.display='none';return}
+ let stockInfo='';
+ if(curChargAct){
+  const sz=val('c_size');const st=stockOf(curChargAct,sz);
+  const nP=Math.max(0,st.pleines+N),nV=Math.max(0,st.vides-M);
+  const pa=(DB.settings.prixAchat||{})[sz]||0,avg=bottleAvgCost(curChargAct,sz),sp=salePriceForSize(curChargAct,sz);
+  const va=Math.round(nP*pa+nV*avg),vv=Math.round(nP*sp+nV*avg);
+  stockInfo='<div class="small-txt" style="margin-top:4px">📦 Stock après : Pleines '+st.pleines+' → '+nP+' · Vides '+st.vides+' → '+nV+' · Total : '+(st.pleines+st.vides)+' → '+(nP+nV)+'</div><div class="small-txt">💰 Valeur après : achat <b>'+money(va)+'</b> · vente <b>'+money(vv)+'</b>'+(vv>va?' · marge potentielle <b>'+money(vv-va)+'</b>':'')+'</div>';
+ }
+ if(diff>0)el.innerHTML='<div class="alert" style="margin-top:8px">📦 Tu gardes <b>'+diff+'</b> bouteille(s) de plus que tu n\'en rends → <b>nouvelle consignation fournisseur</b> (+'+diff+' bouteilles en main, consignation à verser au dépôt).</div>'+stockInfo;
+ else if(diff<0)el.innerHTML='<div class="alert ok" style="margin-top:8px">📦 Tu rends <b>'+(-diff)+'</b> bouteille(s) de plus que tu n\'en reçois → <b>restitution de consignation</b> (le dépôt te rembourse la consignation de '+(-diff)+' bouteilles).</div>'+stockInfo;
+ else el.innerHTML='<div class="alert ok" style="margin-top:8px">✅ Échange équilibré : '+N+' pleine(s) reçue(s) = '+M+' vide(s) rendue(s). Aucune consignation à modifier.</div>'+stockInfo;
+ if(wrap)wrap.style.display=diff===0?'none':'';
+}
+function openAchatVides(act){
+ curAchatAct=act;
+ openModal('🧺 Achat bouteilles vides — '+esc(actName(act)),
+  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="v_size" onchange="calcAchatConseq()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Quantité ★</label><input class="inp" id="v_q" type="text" inputmode="decimal" value="1" oninput="calcAchatConseq()"></div>'+
+  '<div class="field"><label>Montant payé (F) ★</label><input class="inp" id="v_amt" type="text" inputmode="decimal" placeholder="0 = pas de dépense"></div></div>'+
+  '<div id="v_conseq"></div>',
+  {primary:'Valider l\'achat',onSubmit:function(){
+   const sz=val('v_size'),q=Math.max(0,Math.round(num(val('v_q')))),amt=Math.round(num(val('v_amt')));
+   if(q<=0){toast('Mets la quantité');return false}
+   const st=stockOf(act,sz);st.vides+=q;
+   addMove(act,sz,'achat-vides',0,q,0,'Achat bouteilles vides','');
+   logStock(act,'Achat bouteilles vides : +'+q+' bouteille(s) '+sz);
+   if(amt>0){DB.expenses.unshift({id:uid(),ts:Date.now(),date:dISO(),act:act,cat:'Achat bouteilles',label:'Achat '+q+' bouteille(s) vide(s) '+sz,amount:amt,note:'',effects:{act:act,size:sz,p:0,v:q,c:0}})}
+   save();toast('Achat enregistré ✓ · '+stockRecap(act,sz));render();return true;
+  }});
+ calcAchatConseq();
+}
+function calcAchatConseq(){
+ const el=document.getElementById('v_conseq');if(!el)return;
+ const q=Math.max(0,Math.round(num(val('v_q'))));
+ if(q<=0){el.innerHTML='';return}
+ const sz=val('v_size');const st=stockOf(curAchatAct,sz);
+ el.innerHTML='<div class="alert" style="margin-top:8px">📦 <b>Conséquence :</b> tu achètes '+q+' bouteille(s) vide(s) '+sz+' → Vides : '+st.vides+' → '+(st.vides+q)+' · Total en main : <b>+'+q+'</b> bouteille(s).</div>';
+}
+function openAjustStock(act,sz){
+ curAjustAct=act;curAjustSize=sz;
+ const st=stockOf(act,sz);
+ openModal('Ajuster le stock — '+sz+' ('+esc(actName(act))+')',
+  '<div class="hint" style="margin-bottom:4px">Saisis les nombres réels de bouteilles. Utilise ce bouton au tout début, ou après un inventaire.</div>'+
+  '<div class="grid2"><div class="field"><label>Pleines</label><input class="inp" id="a_p" type="text" inputmode="decimal" value="'+st.pleines+'" oninput="calcAjustConseq()"></div>'+
+  '<div class="field"><label>Vides</label><input class="inp" id="a_v" type="text" inputmode="decimal" value="'+st.vides+'" oninput="calcAjustConseq()"></div>'+
+  '></div>'+
+  '<div id="a_conseq"></div>',
+  {primary:'Enregistrer',onSubmit:function(){
+   const before=stockOf(act,sz);
+   const st2=stockOf(act,sz);
+   const np=Math.max(0,Math.round(num(val('a_p')))),nv=Math.max(0,Math.round(num(val('a_v'))));
+   st2.pleines=np;st2.vides=nv;
+   addMove(act,sz,'ajustement',np-before.pleines,nv-before.vides,nc-before.cons,'Ajustement manuel (inventaire)','');
+   logStock(act,'Ajustement manuel '+sz+' : '+st2.pleines+' pleines, '+st2.vides+' vides');
+   save();toast('Stock mis à jour ✓ · '+stockRecap(act,sz));render();return true;
+  }});
+ calcAjustConseq();
+}
+function calcAjustConseq(){
+ const el=document.getElementById('a_conseq');if(!el)return;
+ const st=stockOf(curAjustAct,curAjustSize);
+ const np=Math.max(0,Math.round(num(val('a_p')))),nv=Math.max(0,Math.round(num(val('a_v'))));
+ const f=function(d){return (d>0?'+':'')+d};
+ el.innerHTML='<div class="hint" style="margin-top:8px">📦 <b>Écarts appliqués :</b> Pleines '+f(np-st.pleines)+' · Vides '+f(nv-st.vides)+'</div>';
+}
+
+/* ============================ Stock cuisine ============================ */
+function foodStep(act,itemId,dir){
+ const arr=DB.stockFood[act]=DB.stockFood[act]||[];
+ const it=arr.find(function(x){return x.id===itemId});if(!it)return;
+ it.qty=Math.max(0,Math.round((it.qty+dir)*10)/10);
+ save();render();
+}
+function delIngredient(act,itemId){
+ confirmModal('Supprimer cet ingrédient ?','Il sera retiré de la liste.',function(){
+  DB.stockFood[act]=(DB.stockFood[act]||[]).filter(function(x){return x.id!==itemId});
+  save();render();
+ });
+}
+function openAddIngredient(act){
+ openModal('➕ Ajouter un ingrédient — '+esc(actName(act)),
+  '<div class="grid2"><div class="field"><label>Nom</label><input class="inp" id="n_name" placeholder="Ex : Sel, Maggi…"></div>'+
+  '<div class="field"><label>Unité</label><input class="inp" id="n_unit" placeholder="kg, sac, pièce…"></div></div>',
+  {primary:'Ajouter',onSubmit:function(){
+   const name=val('n_name').trim();if(!name){toast('Écris le nom');return false}
+   DB.stockFood[act]=DB.stockFood[act]||[];
+   DB.stockFood[act].push({id:uid(),name:name,unit:val('n_unit').trim()||'unité',qty:0});
+   save();toast('Ingrédient ajouté ✓');render();return true;
+  }});
+}
+function openAchatIngredient(act){
+ const items=DB.stockFood[act]||[];
+ openModal('🛒 Achat ingrédient — '+esc(actName(act)),
+  '<div class="field"><label>Ingrédient</label><select class="inp" id="i_item">'+items.map(function(it){return '<option value="'+it.id+'">'+esc(it.name)+' ('+esc(it.unit)+')</option>'}).join('')+'</select></div>'+
+  '<div class="grid2"><div class="field"><label>Quantité achetée</label><input class="inp" id="i_q" type="text" inputmode="decimal" value="1"></div>'+
+  '<div class="field"><label>Montant payé (F) ★</label><input class="inp" id="i_amt" type="text" inputmode="decimal" placeholder="0 = pas de dépense"></div></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="i_note" placeholder="Ex : marché de Grand-Bassam"></div>',
+  {primary:'Valider l\'achat',onSubmit:function(){
+   const it=items.find(function(x){return x.id===val('i_item')});if(!it){toast('Ajoute d\'abord un ingrédient');return false}
+   const q=Math.max(0,num(val('i_q'))),amt=Math.round(num(val('i_amt')));
+   if(q<=0){toast('Mets la quantité');return false}
+   it.qty=Math.round((it.qty+q)*10)/10;
+   logStock(act,'Achat ingrédient : +'+fmtQty(q)+' '+it.unit+' de '+it.name);
+   if(amt>0){DB.expenses.unshift({id:uid(),ts:Date.now(),date:dISO(),act:act,cat:'Achat ingrédients',label:'Achat '+it.name+' ('+fmtQty(q)+' '+it.unit+')',amount:amt,note:val('i_note').trim()})}
+   save();toast('Achat enregistré ✓');render();return true;
+  }});
+}
+
+/* ============================ Crédits ============================ */
+function openPay(i){
+ const d=debts()[i];if(!d)return;
+ openModal('💵 Remboursement — '+esc(d.name),
+  '<div class="hint" style="background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:10px;padding:9px 12px">Reste dû : <b>'+money(d.due)+'</b></div>'+
+  '<div class="field"><label>Montant reçu (F) ★</label><input class="inp" id="p_amt" type="text" inputmode="decimal" value="'+d.due+'"></div>'+
+  '<div class="field"><label>Date ★</label><input class="inp" id="p_date" type="date" value="'+dISO()+'"></div>'+
+  '<div class="field"><label>Note (facultatif)</label><input class="inp" id="p_note" placeholder="Ex : payé par Mobile Money"></div>',
+  {primary:'Encaisser',onSubmit:function(){
+   const amt=Math.round(num(val('p_amt')));
+   if(amt<=0){toast('Mets le montant');return false}
+   DB.payments.unshift({id:uid(),ts:Date.now(),date:val('p_date')||dISO(),client:d.name,amount:amt,note:val('p_note').trim()});
+   save();toast('Remboursement enregistré ✓');render();return true;
+  }});
+}
+function delPay(id){
+ confirmModal('Supprimer ce remboursement ?','La dette du client sera recalculée.',function(){
+  DB.payments=DB.payments.filter(function(x){return x.id!==id});
+  save();toast('Remboursement supprimé');render();
+ });
+}
+
+/* ============================ Réglages ============================ */
+function saveName(){DB.settings.businessName=val('sn').trim()||'MISS KOUYATE SHOP';save();render();toast('Nom enregistré ✓')}
+function renAct(id,v){const a=actById(id);if(a){a.name=v.trim()||a.name;save();render()}}
+function delAct(id){
+ const a=actById(id);if(!a)return;
+ confirmModal('Supprimer l\'activité « '+esc(a.name)+' » ?','Les produits de cette activité seront supprimés. Les ventes déjà enregistrées resteront dans l\'historique.',function(){
+  DB.activities=DB.activities.filter(function(x){return x.id!==id});
+  DB.products=DB.products.filter(function(p){return p.act!==id});
+  delete DB.stockGaz[id];delete DB.stockFood[id];
+  save();render();toast('Activité supprimée');
+ });
+}
+function openAddActivity(){
+ openModal('➕ Nouvelle activité',
+  '<div class="field"><label>Nom</label><input class="inp" id="ac_name" placeholder="Ex : Magasin de gaz 3, Maquis…"></div>'+
+  '<div class="field"><label>Type</label><select class="inp" id="ac_type"><option value="gaz">⛽ Magasin de gaz (suivi bouteilles)</option><option value="food">🍗 Cuisine / braisé / repas (suivi ingrédients)</option><option value="gen">🏪 Autre (ventes simples)</option></select></div>',
+  {primary:'Ajouter',onSubmit:function(){
+   const name=val('ac_name').trim();if(!name){toast('Écris le nom');return false}
+   const id=uid(),type=val('ac_type');
+   DB.activities.splice(DB.activities.length-1,0,{id:id,name:name,type:type});
+   if(type==='gaz'){['B6','B12.5'].forEach(function(sz,k){DB.products.push({id:uid(),act:id,name:'Recharge '+sz,price:sz==='B6'?2500:7000,kind:'recharge',size:sz})})}
+   if(type==='food')DB.stockFood[id]=[];
+   save();state.setAct=id;render();toast('Activité ajoutée ✓');
+   return true;
+  }});
+}
+function renProd(id,v){const p=prodById(id);if(p){p.name=v.trim()||p.name;save()}}
+function setPrice(id,v){const p=prodById(id);if(p){p.price=Math.max(0,num(v));save();toast('Prix mis à jour ✓')}}
+function delProd(id){
+ confirmModal('Supprimer ce produit ?','Il ne sera plus proposé dans la vente rapide. Les ventes passées restent dans l\'historique.',function(){
+  DB.products=DB.products.filter(function(p){return p.id!==id});
+  save();render();
+ });
+}
+function openAddProduct(actId){
+ const a=actById(actId);if(!a){toast('Choisis d\'abord une activité');return}
+ openModal('➕ Nouveau produit — '+esc(a.name),
+  '<div class="field"><label>Nom du produit ★</label><input class="inp" id="pr_name" placeholder="Ex : Recharge B15"></div>'+
+  '<div class="field"><label>Prix de vente (F) ★</label><input class="inp" id="pr_price" type="text" inputmode="decimal"></div>'+
+  (a.type==='gaz'?'<div class="field"><label>Type</label><select class="inp" id="pr_kind" onchange="prKindChange()"><option value="normal">Vente simple (accessoire…)</option><option value="recharge">Recharge gaz — client apporte sa bouteille vide (pleines −1, vides +1)</option><option value="definitive">Vente bouteille définitive — le client achète la bouteille (pleines −1, sort du stock, pas de consigne)</option></select></div>'+
+   '<div class="field" id="pr_size_wrap" style="display:none"><label>Taille de bouteille</label><select class="inp" id="pr_size">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>':'')+
+  '<div class="hint">Tu pourras modifier le nom et le prix plus tard dans Réglages.</div>',
+  {primary:'Ajouter',onSubmit:function(){
+   const name=val('pr_name').trim(),price=Math.max(0,num(val('pr_price')));
+   if(!name){toast('Écris le nom du produit');return false}
+   const p={id:uid(),act:actId,name:name,price:price,kind:'normal'};
+   if(a.type==='gaz'){
+    p.kind=val('pr_kind');
+    if(p.kind!=='normal'){p.size=val('pr_size')}
+   }
+   DB.products.push(p);save();toast('Produit ajouté ✓');render();return true;
+  }});
+}
+function prKindChange(){
+ const k=val('pr_kind');
+ const w1=$('#pr_size_wrap');
+ if(w1)w1.style.display=k==='normal'?'none':'';
+ 
+}
+function delCat(i){
+ confirmModal('Supprimer la catégorie « '+esc(DB.cats[i])+' » ?','Les dépenses de cette catégorie passeront en « Autre ».',function(){
+  const old=DB.cats[i];
+  DB.expenses.forEach(function(e){if(e.cat===old)e.cat='Autre'});
+  DB.cats.splice(i,1);
+  save();render();
+ });
+}
+function addCat(){const v=val('nc').trim();if(!v){toast('Écris le nom');return}DB.cats.push(v);save();render();toast('Catégorie ajoutée ✓')}
+function saveStockSettings(){
+ DB.settings.seuilPleines=Math.max(0,Math.round(num(val('sp2'))))||3;
+ DB.settings.seuilVides=Math.max(0,Math.round(num(val('sv2'))))||12;
+ sizes().forEach(function(sz){const el=document.getElementById('sc_'+sz);if(el)DB.settings.consignes[sz]=Math.max(0,Math.round(num(el.value)))});
+ if(!DB.settings.prixAchat)DB.settings.prixAchat={};
+ sizes().forEach(function(sz){const el=document.getElementById('pa_'+sz);if(el)DB.settings.prixAchat[sz]=Math.max(0,Math.round(num(el.value)))});
+ save();toast('Réglages enregistrés ✓');
+}
+
+/* ============================ SYNCHRONISATION EN LIGNE ============================ */
+function isSyncConfigured(){const s=DB.settings.sync;return !!(s&&s.url&&s.key&&s.pass)}
+function syncHeaders(s){return {'apikey':s.key,'Authorization':'Bearer '+s.key,'Content-Type':'application/json'}}
+function genSyncPass(){let s='';const chars='abcdef0123456789';for(let i=0;i<32;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s}
+function setSyncStatus(r){try{store.setItem(KEY+'_sync',JSON.stringify({ok:!!r.ok,ts:r.ts||null,when:Date.now(),why:r.why||''}))}catch(e){}}
+function syncStatus(){try{return JSON.parse(store.getItem(KEY+'_sync')||'null')}catch(e){return null}}
+async function cloudPush(){
+ const s=DB.settings.sync;
+ if(!isSyncConfigured())return {ok:false,why:'Synchronisation non configurée'};
+ const base=String(s.url).replace(/\/+$/,'');
+ const body={key:'data_'+s.pass,value:{ts:Date.now(),data:DB},updated_at:new Date().toISOString()};
+ try{
+  const res=await fetch(base+'/rest/v1/shop_data?on_conflict=key',{method:'POST',headers:Object.assign(syncHeaders(s),{'Prefer':'resolution=merge-duplicates'}),body:JSON.stringify(body)});
+  if(!res.ok)throw new Error('Erreur HTTP '+res.status);
+  return {ok:true,ts:Date.now()};
+ }catch(e){return {ok:false,why:'Hors ligne ou erreur ('+String(e).slice(0,90)+')'}}
+}
+async function cloudPull(){
+ const s=DB.settings.sync;
+ if(!isSyncConfigured())return {ok:false,why:'Synchronisation non configurée'};
+ const base=String(s.url).replace(/\/+$/,'');
+ try{
+  const res=await fetch(base+'/rest/v1/shop_data?key=eq.data_'+encodeURIComponent(s.pass)+'&select=value&limit=1',{headers:syncHeaders(s)});
+  if(!res.ok)throw new Error('Erreur HTTP '+res.status);
+  const arr=await res.json();
+  if(!arr||!arr.length||!arr[0]||!arr[0].value)return {ok:false,why:'Aucune donnée en ligne pour l\'instant'};
+  const remote=arr[0].value;
+  const prev=syncStatus();
+  if(prev&&prev.ok&&prev.ts&&Number(remote.ts)<=Number(prev.ts))return {ok:true,ts:prev.ts,why:'déjà à jour'};
+  try{store.setItem(KEY+'_pre_sync_'+Date.now(),JSON.stringify(DB))}catch(e){}
+  const hadMoves=Array.isArray(remote.data&&remote.data.moves);
+  DB=normalizeDb(remote.data);
+  DB.settings.sync={url:s.url,key:s.key,pass:s.pass};
+  if(!hadMoves&&(DB.sales.length||DB.supplierCautions.length))DB.moves=rebuildMoves();
+  save();render();
+  return {ok:true,ts:Number(remote.ts)||Date.now()};
+ }catch(e){return {ok:false,why:'Hors ligne ou erreur ('+String(e).slice(0,90)+')'}}
+}
+let syncT=null;
+function scheduleSync(){
+ if(!isSyncConfigured())return;
+ clearTimeout(syncT);
+ syncT=setTimeout(function(){
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)return;
+  cloudPush().then(function(r){if(r.ok)setSyncStatus(r)});
+ },1200);
+}
+function syncNow(){
+ if(!isSyncConfigured()){toast('Configure d\'abord la synchronisation (champs ci-dessus)');return}
+ toast('📤 Envoi en cours…');
+ cloudPush().then(function(r){setSyncStatus(r);toast(r.ok?'✅ Sauvegarde en ligne réussie':'⚠️ '+r.why);render()});
+}
+function pullNow(){
+ if(!isSyncConfigured()){toast('Configure d\'abord la synchronisation (champs ci-dessus)');return}
+ toast('📥 Récupération…');
+ cloudPull().then(function(r){setSyncStatus(r);toast(r.ok?'✅ Données récupérées':'⚠️ '+r.why);if(r.ok&&r.ts)render()});
+}
+function saveSyncConfig(){
+ const v=function(id){const el=document.getElementById(id);return el?el.value.trim():''};
+ DB.settings.sync={url:v('sy_url'),key:v('sy_key'),pass:v('sy_pass')};
+ save();toast('💾 Configuration enregistrée ✓');render();
+ if(isSyncConfigured())pullNow();
+}
+window.addEventListener('online',function(){
+ if(isSyncConfigured()){
+  cloudPull().then(function(r){if(r.ok&&r.ts){setSyncStatus(r);render()}});
+  cloudPush().then(function(r){if(r.ok)setSyncStatus(r)});
+ }
+});
+
+/* ============================ Sauvegarde / CSV / impression ============================ */
+function download(name,content,type){
+ try{
+  const blob=new Blob([content],{type:type||'application/octet-stream'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000);
+ }catch(e){toast('⚠️ Téléchargement impossible ici. Utilise le bouton « Copier le texte » et envoie-le par WhatsApp.')}
+}
+function exportJSON(){
+ download('sauvegarde-boutique-'+dISO()+'.json',JSON.stringify({app:'gestion-boutique',version:DB.v,exported:dISO(),db:DB},null,1),'application/json');
+ toast('Sauvegarde téléchargée ✓');
+}
+function copyBackup(){
+ const ta=$('#bk');if(!ta)return;
+ ta.select();ta.setSelectionRange(0,ta.value.length);
+ try{navigator.clipboard.writeText(ta.value).then(function(){toast('Texte copié ✓ Envoie-le par WhatsApp et garde-le !')},function(){toast('Sélectionne le texte puis copie-le manuellement')})}
+ catch(e){toast('Sélectionne le texte puis copie-le manuellement')}
+}
+function doRestore(ev){
+ const f=ev.target.files&&ev.target.files[0];if(!f)return;
+ const rd=new FileReader();
+ rd.onload=function(){
+  try{
+   const obj=JSON.parse(rd.result);
+   const data=obj&&obj.db?obj.db:obj;
+   if(!data||!Array.isArray(data.sales)||!Array.isArray(data.activities)){toast('❌ Fichier de sauvegarde invalide');return}
+   const syncCfg=DB.settings.sync||{url:'',key:'',pass:''};
+   const hadMoves=Array.isArray(data.moves);
+   DB=normalizeDb(data);
+   DB.settings.sync=syncCfg;
+   if(!hadMoves&&(DB.sales.length||DB.supplierCautions.length))DB.moves=rebuildMoves();
+   save();render();toast('Sauvegarde restaurée ✓');
+  }catch(e){toast('❌ Impossible de lire ce fichier')}
+ };
+ rd.readAsText(f);
+ ev.target.value='';
+}
+function csvSales(){
+ const rows=[['Date','Activité','Produit','Quantité','Prix unitaire (F)','Total (F)','Paiement','Client','Note']];
+ DB.sales.slice().sort(function(a,b){return a.ts-b.ts}).forEach(function(s){
+  rows.push([s.date,actName(s.act),s.name,String(s.qty).replace('.',','),String(s.price).replace('.',','),String(s.total),payLabel(s.pay),s.client||'',s.note||'']);
+ });
+ download('ventes.csv','\uFEFF'+rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(';')}).join('\r\n'),'text/csv;charset=utf-8');
+ toast('Fichier ventes.csv téléchargé ✓');
+}
+function csvExpenses(){
+ const rows=[['Date','Activité','Catégorie','Libellé','Montant (F)','Note']];
+ DB.expenses.slice().sort(function(a,b){return a.ts-b.ts}).forEach(function(e){
+  rows.push([e.date,actName(e.act),e.cat,e.label||'',String(e.amount),e.note||'']);
+ });
+ download('depenses.csv','\uFEFF'+rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(';')}).join('\r\n'),'text/csv;charset=utf-8');
+ toast('Fichier depenses.csv téléchargé ✓');
+}
+function printReport(){
+ const r=curRange();const s=stats(r.a,r.b);
+ const byAct=DB.activities.map(function(a){const b=s.by[a.id];return {name:a.name,v:b.v,d:b.d,b:b.v-b.d}});
+ const tp=tops(r.a,r.b).slice(0,10);
+ const cs=catsStats(r.a,r.b);
+ const rowsAct=byAct.concat([{name:'TOTAL',v:s.ventes,c:s.cmv,d:s.charges,b:s.ben}]).map(function(x){
+  return '<tr><td style="padding:5px 8px;border:1px solid #ccc">'+esc(x.name)+'</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:right">'+money(x.v)+'</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:right">'+money(x.c)+'</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:right">'+money(x.d)+'</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:right">'+money(x.b)+'</td></tr>';
+ }).join('');
+ const rowsProd=tp.map(function(x){return '<tr><td style="padding:5px 8px;border:1px solid #ccc">'+esc(x.n)+'</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:right">'+fmtQty(x.q)+'</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:right">'+money(x.t)+'</td></tr>'}).join('')||'<tr><td colspan="3" style="padding:5px 8px;border:1px solid #ccc">Aucune vente</td></tr>';
+ const rowsCat=cs.map(function(x){return '<tr><td style="padding:5px 8px;border:1px solid #ccc">'+esc(x.c)+'</td><td style="padding:5px 8px;border:1px solid #ccc;text-align:right">'+money(x.t)+'</td></tr>'}).join('')||'<tr><td colspan="2" style="padding:5px 8px;border:1px solid #ccc">Aucune dépense</td></tr>';
+ $('#print-root').innerHTML='<div style="font-family:system-ui,sans-serif;padding:8px">'+
+  '<h1 style="margin:0 0 2px;font-size:22px">'+esc(DB.settings.businessName)+'</h1>'+
+  '<div style="color:#555;margin-bottom:12px">Rapport '+r.label+' — généré le '+fmtD(dISO())+'</div>'+
+  '<table style="width:100%;border-collapse:collapse;margin-bottom:14px"><tr>'+
+  '<td style="padding:8px 10px;border:1px solid #ccc"><b>Ventes</b><br>'+money(s.ventes)+'</td>'+
+  '<td style="padding:8px 10px;border:1px solid #ccc"><b>Coût du gaz vendu</b><br>'+money(s.cmv)+'</td>'+
+  '<td style="padding:8px 10px;border:1px solid #ccc"><b>Charges</b><br>'+money(s.charges)+'</td>'+'<td style="padding:8px 10px;border:1px solid #ccc"><b>Bénéfice</b><br>'+money(s.ben)+'</td>'+
+  '<td style="padding:8px 10px;border:1px solid #ccc"><b>Encaissé</b><br>'+money(s.enc)+'</td></tr></table>'+
+  '<h2 style="font-size:15px;margin:10px 0 4px">Par activité</h2><table style="width:100%;border-collapse:collapse;margin-bottom:12px">'+rowsAct+'</table>'+
+  '<h2 style="font-size:15px;margin:10px 0 4px">Meilleures ventes</h2><table style="width:100%;border-collapse:collapse;margin-bottom:12px">'+rowsProd+'</table>'+
+  '<h2 style="font-size:15px;margin:10px 0 4px">Dépenses par catégorie</h2><table style="width:100%;border-collapse:collapse">'+rowsCat+'</table>'+
+  '</div>';
+ window.print();
+}
+
+/* ============================ EXPORT EXCEL (.xlsx) ============================ */
+/* Génère un vrai classeur .xlsx (zip OOXML) rempli avec toutes les données,
+   sans dépendance externe — fonctionne même hors connexion. */
+function xlXmlE(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function xlDateSerial(iso){const t=Date.parse((iso||dISO())+'T00:00:00Z');return Math.round(t/86400000)+25569}
+function xlCol(n){return String.fromCharCode(64+n)}
+function xlS(ref,text,style){return '<c r="'+ref+'"'+(style!==undefined?' s="'+style+'"':'')+' t="inlineStr"><is><t xml:space="preserve">'+xlXmlE(text)+'</t></is></c>'}
+function xlN(ref,val,style){const v=Number(val);return '<c r="'+ref+'"'+(style!==undefined?' s="'+style+'"':'')+'><v>'+(isNaN(v)?0:v)+'</v></c>'}
+function xlF(ref,formula,style){return '<c r="'+ref+'"'+(style!==undefined?' s="'+style+'"':'')+'><f>'+xlXmlE(formula)+'</f></c>'}
+function xlLit(s){return '"'+String(s==null?'':s).replace(/"/g,'""')+'"'}
+function xlRow(r,cells){return '<row r="'+r+'">'+cells+'</row>'}
+function xlCols(list){let x='';list.forEach(function(w,i){x+='<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>'});return x}
+const XL_CRC=(function(){const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0}return t})();
+function xlCrc(u8){let crc=0xFFFFFFFF;for(let i=0;i<u8.length;i++)crc=(crc>>>8)^XL_CRC[(crc^u8[i])&0xFF];return (crc^0xFFFFFFFF)>>>0}
+function xlEnc(s){return new TextEncoder().encode(s)}
+function xlU16(v){return new Uint8Array([v&255,(v>>8)&255])}
+function xlU32(v){return new Uint8Array([v&255,(v>>8)&255,(v>>16)&255,(v>>24)&255])}
+function xlZip(entries){
+ const b=(function(){const parts=[];let len=0;return{push:function(u8){parts.push(u8);len+=u8.length},len:function(){return len},finish:function(){const out=new Uint8Array(len);let o=0;for(const p of parts){out.set(p,o);o+=p.length}return out}}})();
+ const d=new Date();
+ const time=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xFFFF;
+ const date=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
+ const cd=[];
+ entries.forEach(function(e){
+  const name=xlEnc(e.name),data=e.data,crc=xlCrc(data),off=b.len();
+  b.push(xlU32(0x04034b50));b.push(xlU16(20));b.push(xlU16(0x0800));b.push(xlU16(0));
+  b.push(xlU16(time));b.push(xlU16(date));b.push(xlU32(crc));
+  b.push(xlU32(data.length));b.push(xlU32(data.length));
+  b.push(xlU16(name.length));b.push(xlU16(0));
+  b.push(name);b.push(data);
+  cd.push({name:name,crc:crc,len:data.length,off:off});
+ });
+ const cdOff=b.len();
+ cd.forEach(function(e){
+  b.push(xlU32(0x02014b50));b.push(xlU16(20));b.push(xlU16(20));b.push(xlU16(0x0800));b.push(xlU16(0));
+  b.push(xlU16(time));b.push(xlU16(date));b.push(xlU32(e.crc));
+  b.push(xlU32(e.len));b.push(xlU32(e.len));
+  b.push(xlU16(e.name.length));b.push(xlU16(0));b.push(xlU16(0));
+  b.push(xlU16(0));b.push(xlU16(0));b.push(xlU32(0));b.push(xlU32(e.off));
+  b.push(e.name);
+ });
+ const cdSize=b.len()-cdOff;
+ b.push(xlU32(0x06054b50));b.push(xlU16(0));b.push(xlU16(0));
+ b.push(xlU16(cd.length));b.push(xlU16(cd.length));
+ b.push(xlU32(cdSize));b.push(xlU32(cdOff));b.push(xlU16(0));
+ return b.finish();
+}
+function buildXlsxBytes(){
+ const HEAD=3,MONEY=1,DATE=2;
+ const pays={esp:'Espèces',mm:'Mobile Money',credit:'Crédit'};
+ const sheets=[];
+ /* ---- Réglages ---- */
+ (function(){
+  const N=Math.max(DB.activities.length,DB.products.length,DB.cats.length,3,Object.keys(DB.settings.consignes).length);
+  const rows=[];
+  rows.push(xlRow(1,xlS('A1','ACTIVITÉS (pour les listes déroulantes)',HEAD)+xlS('B1','PRODUITS',HEAD)+xlS('C1','PRIX (F)',HEAD)+xlS('D1','CATÉGORIES DE DÉPENSES',HEAD)+xlS('F1','PAIEMENTS',HEAD)+xlS('H1','CONSIGNES BOUTEILLES (rappel)',HEAD)+xlS('I1','MONTANT (F)',HEAD)));
+  const paysL=['Espèces','Mobile Money','Crédit'];
+  const szs=Object.keys(DB.settings.consignes);
+  for(let i=0;i<N;i++){
+   const rr=2+i;let cells='';
+   if(DB.activities[i])cells+=xlS('A'+rr,DB.activities[i].name);
+   if(DB.products[i])cells+=xlS('B'+rr,DB.products[i].name)+xlN('C'+rr,DB.products[i].price,MONEY);
+   if(DB.cats[i])cells+=xlS('D'+rr,DB.cats[i]);
+   if(paysL[i])cells+=xlS('F'+rr,paysL[i]);
+   if(szs[i])cells+=xlS('H'+rr,szs[i])+xlN('I'+rr,DB.settings.consignes[szs[i]],MONEY);
+   rows.push(xlRow(rr,cells));
+  }
+  rows.push(xlRow(N+3,xlS('A'+(N+3),'Exporté depuis MISS KOUYATE SHOP le '+fmtD(dISO())+' — DOREGO SERVICES · +225 0502657392')));
+  sheets.push({name:'Réglages',rows:rows,cols:xlCols([26,32,12,24,4,16,4,22,14])});
+ })();
+ /* ---- Ventes ---- */
+ (function(){
+  const hd=['Date','Activité','Produit','Quantité','Prix unitaire (F)','Total (F)','Paiement','Client','Note','Coût du gaz vendu (F)'];
+  const rows=[xlRow(1,hd.map(function(h,i){return xlS(xlCol(i+1)+'1',h,HEAD)}).join(''))];
+  DB.sales.slice().sort(function(a,b){return a.ts-b.ts}).forEach(function(s,i){
+   const rr=2+i;
+   const sz1=(s.effects&&s.effects.size)||((function(){const p=prodById(s.prod);return p&&p.size})());const kind1=(s.kind==='definitive')?'definitive':(s.kind||((function(){const p=prodById(s.prod);return p&&p.kind})())||'');let cost=0;if(sz1&&(kind1==='recharge'||kind1==='definitive'||kind1==='bouteille')){cost=s.qty*((DB.settings.prixAchat||{})[sz1]||0);if(kind1!=='recharge')cost+=s.qty*bottleAvgCost(s.act,sz1)}rows.push(xlRow(rr,xlN('A'+rr,xlDateSerial(s.date),DATE)+xlS('B'+rr,actName(s.act))+xlS('C'+rr,s.name)+xlN('D'+rr,s.qty)+xlN('E'+rr,s.price,MONEY)+xlN('F'+rr,s.total,MONEY)+xlS('G'+rr,pays[s.pay]||'')+xlS('H'+rr,s.client||'')+xlS('I'+rr,s.note||'')+xlN('J'+rr,cost,MONEY)));
+  });
+  sheets.push({name:'Ventes',rows:rows,cols:xlCols([12,24,28,10,14,14,16,18,24,14])});
+ })();
+ /* ---- Dépenses ---- */
+ (function(){
+  const hd=['Date','Activité','Catégorie','Libellé','Montant (F)','Note'];
+  const rows=[xlRow(1,hd.map(function(h,i){return xlS(xlCol(i+1)+'1',h,HEAD)}).join(''))];
+  DB.expenses.slice().sort(function(a,b){return a.ts-b.ts}).forEach(function(e,i){
+   const rr=2+i;
+   rows.push(xlRow(rr,xlN('A'+rr,xlDateSerial(e.date),DATE)+xlS('B'+rr,actName(e.act))+xlS('C'+rr,e.cat)+xlS('D'+rr,e.label||'')+xlN('E'+rr,e.amount,MONEY)+xlS('F'+rr,e.note||'')));
+  });
+  sheets.push({name:'Dépenses',rows:rows,cols:xlCols([12,24,20,34,14,24])});
+ })();
+ /* ---- Remboursements ---- */
+ (function(){
+  const hd=['Date','Client','Montant (F)','Note'];
+  const rows=[xlRow(1,hd.map(function(h,i){return xlS(xlCol(i+1)+'1',h,HEAD)}).join(''))];
+  DB.payments.slice().sort(function(a,b){return a.ts-b.ts}).forEach(function(p,i){
+   const rr=2+i;
+   rows.push(xlRow(rr,xlN('A'+rr,xlDateSerial(p.date),DATE)+xlS('B'+rr,p.client)+xlN('C'+rr,p.amount,MONEY)+xlS('D'+rr,p.note||'')));
+  });
+  sheets.push({name:'Remboursements',rows:rows,cols:xlCols([12,22,14,30])});
+ })();
+ /* ---- Consignes fournisseurs ---- */
+ (function(){
+  const hd=['Date','Fournisseur','Sens','Montant (F)','Quantité (bouteilles)','Taille','Note'];
+  const rows=[xlRow(1,hd.map(function(h,i){return xlS(xlCol(i+1)+'1',h,HEAD)}).join(''))];
+  DB.supplierCautions.slice().sort(function(a,b){return a.ts-b.ts}).forEach(function(c,i){
+   const rr=2+i;
+   rows.push(xlRow(rr,xlN('A'+rr,xlDateSerial(c.date),DATE)+xlS('B'+rr,c.supplier||'Fournisseur')+xlS('C'+rr,c.type==='in'?'Versée':'Récupérée')+xlN('D'+rr,c.amount,MONEY)+xlN('E'+rr,c.qty||0)+xlS('F'+rr,c.size||'')+xlS('G'+rr,c.note||'')));
+  });
+  const nSc=DB.supplierCautions.length;
+  const tr=2+nSc;
+  rows.push(xlRow(tr+1,xlS('A'+(tr+1),'En cours (versées − récupérées) :',1)+(nSc>0?xlF('D'+(tr+1),'SUMIF(C2:C'+(tr-1)+',"Versée",D2:D'+(tr-1)+')-SUMIF(C2:C'+(tr-1)+',"Récupérée",D2:D'+(tr-1)+')',MONEY):xlN('D'+(tr+1),0,MONEY))));
+  rows.push(xlRow(tr+3,xlS('A'+(tr+3),'💡 Ce n\'est pas une dépense : c\'est l\'argent immobilisé chez les fournisseurs, à récupérer quand les bouteilles seront rendues.')));
+  sheets.push({name:'Consignes fournisseurs',rows:rows,cols:xlCols([12,26,12,14,12,9,30])});
+ })();
+ /* ---- Mouvements de stock ---- */
+ (function(){
+  const hd=['Date','Activité','Taille','Type','Δ Pleines','Δ Vides','Reste Pleines','Reste Vides','Détail'];
+  const rows=[xlRow(1,hd.map(function(h,i){return xlS(xlCol(i+1)+'1',h,HEAD)}).join(''))];
+  DB.moves.slice(0,2000).forEach(function(m,i){
+   const rr=2+i;
+   rows.push(xlRow(rr,xlN('A'+rr,xlDateSerial(m.date),DATE)+xlS('B'+rr,actName(m.act))+xlS('C'+rr,m.size||'')+xlS('D'+rr,moveLabel(m.type))+xlN('E'+rr,m.dp||0)+xlN('F'+rr,m.dv||0)+xlN('G'+rr,m.p)+xlN('H'+rr,m.v)+xlS('I'+rr,(m.label||'')+(m.note?' — '+m.note:''))));
+  });
+  sheets.push({name:'Mouvements',rows:rows,cols:xlCols([12,22,9,26,9,9,9,9,40])});
+ })();
+ /* ---- Stock gaz ---- */
+ (function(){
+  const hd=['Activité','Taille','Pleines','Vides'];
+  const rows=[xlRow(1,hd.map(function(h,i){return xlS(xlCol(i+1)+'1',h,HEAD)}).join(''))];
+  let i=0;
+  gazActs().forEach(function(a){
+   Object.keys(DB.settings.consignes).forEach(function(sz){
+    const st=stockOf(a.id,sz);const rr=2+i;i++;
+    rows.push(xlRow(rr,xlS('A'+rr,a.name)+xlS('B'+rr,sz)+xlN('C'+rr,st.pleines)+xlN('D'+rr,st.vides)));
+   });
+  });
+  sheets.push({name:'Stock gaz',rows:rows,cols:xlCols([24,10,10,10])});
+ })();
+ /* ---- Stock cuisine ---- */
+ (function(){
+  const hd=['Activité','Ingrédient','Unité','Quantité'];
+  const rows=[xlRow(1,hd.map(function(h,i){return xlS(xlCol(i+1)+'1',h,HEAD)}).join(''))];
+  let i=0;
+  foodActs().forEach(function(a){
+   (DB.stockFood[a.id]||[]).forEach(function(it){
+    const rr=2+i;i++;
+    rows.push(xlRow(rr,xlS('A'+rr,a.name)+xlS('B'+rr,it.name)+xlS('C'+rr,it.unit)+xlN('D'+rr,it.qty)));
+   });
+  });
+  sheets.push({name:'Stock cuisine',rows:rows,cols:xlCols([26,16,10,10])});
+ })();
+ /* ---- Tableau de bord ---- */
+ (function(){
+  const now=new Date();
+  const first=dISO(new Date(now.getFullYear(),now.getMonth(),1));
+  const last=dISO(new Date(now.getFullYear(),now.getMonth()+1,0));
+  const cV=function(col){return 'Ventes!$'+col+'$2:$'+col+'$5000'};
+  const cD=function(col){return 'Dépenses!$'+col+'$2:$'+col+'$5000'};
+  const cR=function(col){return 'Remboursements!$'+col+'$2:$'+col+'$5000'};
+  const cA='">="&$B$3',cB='"<="&$D$3';
+  const rows=[];
+  rows.push(xlRow(1,xlS('A1','MISS KOUYATE SHOP — TABLEAU DE BORD',HEAD)));
+  rows.push(xlRow(2,xlS('A2','Exporté depuis l\'application le '+fmtD(dISO())+' — DOREGO SERVICES · +225 0502657392')));
+  rows.push(xlRow(3,xlS('A3','Période : du')+xlN('B3',xlDateSerial(first),DATE)+xlS('C3','au')+xlN('D3',xlDateSerial(last),DATE)+xlS('E3','← change ces deux dates pour la période')));
+  const kpiL=['VENTES','CHARGES','COÛT DU GAZ VENDU','BÉNÉFICE','ENCAISSÉ (ventes)','VENTES À CRÉDIT','CRÉDITS ENCAISSÉS'];
+  const genName=(actById('gen')?actById('gen').name:'Général (commun)');
+  let r4='',r5='';
+  kpiL.forEach(function(k,i){r4+=xlS(xlCol(i+1)+'4',k)});
+  r5+=xlF('A5','IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('F')+','+cV('A')+','+cA+','+cV('A')+','+cB+'))',MONEY);
+  r5+=xlF('B5','IF(COUNT('+cD('A')+')=0,"",SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+')-SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('C')+',"Achat gaz")-SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('C')+',"Achat bouteilles"))',MONEY);
+  r5+=xlF('C5','IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('J')+','+cV('A')+','+cA+','+cV('A')+','+cB+'))',MONEY);
+  r5+=xlF('D5','IF(OR($A$5="",$B$5=""),"",$A$5-$B$5-$C$5)',MONEY);
+  r5+=xlF('E5','IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('F')+','+cV('A')+','+cA+','+cV('A')+','+cB+','+cV('G')+',"<>Crédit"))',MONEY);
+  r5+=xlF('F5','IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('F')+','+cV('A')+','+cA+','+cV('A')+','+cB+','+cV('G')+',"Crédit"))',MONEY);
+  r5+=xlF('G5','IF(COUNT('+cR('A')+')=0,"",SUMIFS('+cR('C')+','+cR('A')+','+cA+','+cR('A')+','+cB+'))',MONEY);
+  rows.push(xlRow(4,r4));rows.push(xlRow(5,r5));
+  rows.push(xlRow(8,xlF('X8','IF(COUNT('+cD('A')+')=0,"",SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('B')+','+xlLit(genName)+')-SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('B')+','+xlLit(genName)+','+cD('C')+',"Achat gaz")-SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('B')+','+xlLit(genName)+','+cD('C')+',"Achat bouteilles"))',MONEY)));
+  rows.push(xlRow(6,xlS('A6','CRÉDITS CLIENTS EN COURS (total)')+xlS('B6','NOMBRE DE VENTES (période)')+xlS('D6','CONSIGNATIONS FOURNISSEURS (en cours)')));
+  rows.push(xlRow(7,xlF('A7','IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('F')+','+cV('G')+',"Crédit")-SUM('+cR('C')+'))',MONEY)+xlF('B7','IF(COUNT('+cV('A')+')=0,"",COUNTIFS('+cV('A')+','+cA+','+cV('A')+','+cB+'))')+xlF('D7','SUMIF(\'Consignes fournisseurs\'!$C$2:$C$5000,"Versée",\'Consignes fournisseurs\'!$D$2:$D$5000)-SUMIF(\'Consignes fournisseurs\'!$C$2:$C$5000,"Récupérée",\'Consignes fournisseurs\'!$D$2:$D$5000)',MONEY)));
+  rows.push(xlRow(9,xlS('A9','RENTABILITÉ PAR ACTIVITÉ (comptabilité analytique)')));
+  const hd=['Activité','Ventes','Coût du gaz','Charges directes','Marge brute','Charges communes (part)','Résultat net'];
+  let r10='';hd.forEach(function(h,i){r10+=xlS(xlCol(i+1)+'10',h,HEAD)});
+  rows.push(xlRow(10,r10));
+  const biz=bizActs().slice(0,8);
+  const n=biz.length;
+  const lastBiz=10+n;
+  biz.forEach(function(a,i){
+   const rr=11+i;
+   const nm=xlLit(a.name);
+   rows.push(xlRow(rr,
+    xlS('A'+rr,a.name)+
+    xlF('B'+rr,'IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('F')+','+cV('A')+','+cA+','+cV('A')+','+cB+','+cV('B')+','+nm+'))',MONEY)+
+    xlF('C'+rr,'IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('J')+','+cV('A')+','+cA+','+cV('A')+','+cB+','+cV('B')+','+nm+'))',MONEY)+
+    xlF('D'+rr,'IF(COUNT('+cD('A')+')=0,"",SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('B')+','+nm+')-SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('B')+','+nm+','+cD('C')+',"Achat gaz")-SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('B')+','+nm+','+cD('C')+',"Achat bouteilles"))',MONEY)+
+    xlF('E'+rr,'IF(OR($B'+rr+'="",$C'+rr+'="",$D'+rr+'=""),"",$B'+rr+'-$C'+rr+'-$D'+rr+')',MONEY)+
+    xlF('F'+rr,'IF(OR($X$8="",SUM($B$11:$B$'+lastBiz+')=0),"",$X$8*$B'+rr+'/SUM($B$11:$B$'+lastBiz+'))',MONEY)+
+    xlF('G'+rr,'IF(OR($E'+rr+'="",$F'+rr+'=""),"",$E'+rr+'-$F'+rr+')',MONEY)));
+  });
+  if(n===0){rows.push(xlRow(11,xlS('A11','(aucune activité)')))}
+  const tRow=11+n;
+  if(n>=1){
+   rows.push(xlRow(tRow,xlS('A'+tRow,'TOTAL')+xlF('B'+tRow,'SUM(B11:B'+lastBiz+')',MONEY)+xlF('C'+tRow,'SUM(C11:C'+lastBiz+')',MONEY)+xlF('D'+tRow,'SUM(D11:D'+lastBiz+')',MONEY)+xlF('E'+tRow,'SUM(E11:E'+lastBiz+')',MONEY)+xlF('F'+tRow,'SUM(F11:F'+lastBiz+')',MONEY)+xlF('G'+tRow,'SUM(G11:G'+lastBiz+')',MONEY)));
+   rows.push(xlRow(tRow+1,xlS('A'+(tRow+1),'💡 Les charges communes (loyer, électricité…) notées dans « '+genName+' » sont réparties sur chaque activité au prorata de ses ventes. Marge brute = ventes − dépenses directes. Résultat net = marge brute − part des charges communes.')));
+  }
+  const bTitle=(n>=1?tRow+3:13),bHead=bTitle+1,bStart=bHead+1;
+  const m=Math.min(15,DB.products.length);
+  rows.push(xlRow(bTitle,xlS('A'+bTitle,'MEILLEURES VENTES (période)')+xlS('F'+bTitle,'DÉPENSES PAR CATÉGORIE (période)')));
+  let rHead='';['Produit','Quantité','Montant'].forEach(function(h,i){rHead+=xlS(xlCol(i+1)+bHead,h,HEAD)});
+  rHead+=xlS('F'+bHead,'Catégorie',HEAD)+xlS('G'+bHead,'Montant',HEAD);
+  rows.push(xlRow(bHead,rHead));
+  for(let i=0;i<m;i++){
+   const rr=bStart+i;
+   const p=DB.products[i],c=DB.cats[i];
+   let cells='';
+   if(p){const nm=xlLit(p.name);cells+=xlS('A'+rr,p.name)+xlF('B'+rr,'IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('D')+','+cV('A')+','+cA+','+cV('A')+','+cB+','+cV('C')+','+nm+'))')+xlF('C'+rr,'IF(COUNT('+cV('A')+')=0,"",SUMIFS('+cV('F')+','+cV('A')+','+cA+','+cV('A')+','+cB+','+cV('C')+','+nm+'))',MONEY)}
+   if(c){const nm=xlLit(c);cells+=xlS('F'+rr,c)+xlF('G'+rr,'IF(COUNT('+cD('A')+')=0,"",SUMIFS('+cD('E')+','+cD('A')+','+cA+','+cD('A')+','+cB+','+cD('C')+','+nm+'))',MONEY)}
+   rows.push(xlRow(rr,cells));
+  }
+  const crTitle=bStart+m+2,crHead=crTitle+1;
+  rows.push(xlRow(crTitle,xlS('A'+crTitle,'CRÉDITS CLIENTS — écris les noms des clients dans la colonne A')));
+  rows.push(xlRow(crHead,xlS('A'+crHead,'Client',HEAD)+xlS('B'+crHead,'Reste dû',HEAD)));
+  for(let i=0;i<10;i++){
+   const rr=crHead+1+i;
+   rows.push(xlRow(rr,xlF('B'+rr,'IF($A'+rr+'="","",SUMIFS('+cV('F')+','+cV('G')+',"Crédit",'+cV('H')+',$A'+rr+')-SUMIFS('+cR('C')+','+cR('B')+',$A'+rr+'))',MONEY)));
+  }
+  const notesStart=crHead+12;
+  const notes=['Notes :','• Bénéfice = Ventes − Coût du gaz vendu − Charges (le stock de gaz acheté reste une valeur disponible).','• Encaissé = ventes payées en Espèces ou Mobile Money (sans les crédits). Crédits encaissés = remboursements reçus.','• Charges communes = dépenses notées dans l\'activité « '+genName+' ».','• Les consignations payées aux fournisseurs ne sont pas des dépenses : voir la feuille « Consignes fournisseurs ».','• Le stock de gaz et de cuisine se met à jour dans l\'application (les nombres ci-dessous viennent de l\'application).'];
+  notes.forEach(function(nt,i){rows.push(xlRow(notesStart+i,xlS('A'+(notesStart+i),nt)))});
+  sheets.push({name:'Tableau de bord',rows:rows,cols:xlCols([24,14,16,14,18,16,14])});
+ })();
+ /* ---- Assemblage du classeur ---- */
+ const names=sheets.map(function(s){return s.name});
+ let wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>';
+ names.forEach(function(n,i){wb+='<sheet name="'+xlXmlE(n)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>'});
+ wb+='</sheets><calcPr calcId="124519" fullCalcOnLoad="1"/></workbook>';
+ let rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
+ names.forEach(function(n,i){rels+='<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>'});
+ rels+='<Relationship Id="rId'+(names.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+ let ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
+ names.forEach(function(n,i){ct+='<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'});
+ ct+='</Types>';
+ const rootRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+ const stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+  '<numFmts count="2"><numFmt numFmtId="164" formatCode="#,##0 &quot;F&quot;"/><numFmt numFmtId="165" formatCode="dd/mm/yyyy"/></numFmts>'+
+  '<fonts count="3"><font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font></fonts>'+
+  '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0D9488"/><bgColor indexed="64"/></patternFill></fill></fills>'+
+  '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'+
+  '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+  '<cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="2" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>'+
+  '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+ const entries=[{name:'[Content_Types].xml',data:xlEnc(ct)},{name:'_rels/.rels',data:xlEnc(rootRels)},{name:'xl/workbook.xml',data:xlEnc(wb)},{name:'xl/_rels/workbook.xml.rels',data:xlEnc(rels)},{name:'xl/styles.xml',data:xlEnc(stylesXml)}];
+ names.forEach(function(n,i){
+  const s=sheets[i];
+  const xml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols>'+s.cols+'</cols><sheetData>'+s.rows.join('')+'</sheetData></worksheet>';
+  entries.push({name:'xl/worksheets/sheet'+(i+1)+'.xml',data:xlEnc(xml)});
+ });
+ return xlZip(entries);
+}
+function exportExcel(){
+ toast('📊 Préparation du fichier Excel…');
+ setTimeout(function(){
+  try{
+   const bytes=buildXlsxBytes();
+   download('MISS-KOUYATE-SHOP-'+dISO()+'.xlsx',bytes,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+   toast('📊 Classeur Excel créé ✓ — ouvre-le avec Excel ou Google Sheets');
+  }catch(e){toast('⚠️ Export impossible : '+String(e).slice(0,80))}
+ },60);
+}
+
+/* ============================ Démo & reset ============================ */
+function loadDemo(){
+ /* Sécurité : si des vraies données existent, on les sauvegarde d'abord */
+ try{
+  if(DB.sales.length||DB.expenses.length||DB.supplierCautions.length||DB.payments.length){
+   store.setItem(KEY+'_predemo',JSON.stringify(DB));
+  }
+ }catch(e){}
+ const D=seed();
+ D.settings.businessName='MISS KOUYATE SHOP';
+ D.settings.welcomeDone=true;
+ D.stockGaz={g1:{B6:{pleines:8,vides:5,cons:3},'B12.5':{pleines:12,vides:9,cons:6}},g2:{B6:{pleines:4,vides:2,cons:1},'B12.5':{pleines:6,vides:4,cons:2}}};
+ D.stockFood={f1:[{id:'i1',name:'Poisson',unit:'kg',qty:6},{id:'i2',name:'Poulet',unit:'pièce',qty:4},{id:'i3',name:'Charbon',unit:'sac',qty:2},{id:'i4',name:'Huile',unit:'litre',qty:5},{id:'i5',name:'Attiéké',unit:'kg',qty:3},{id:'i6',name:'Emballage',unit:'paquet',qty:8}],m1:[{id:'i7',name:'Riz',unit:'kg',qty:15},{id:'i8',name:'Poisson',unit:'kg',qty:4},{id:'i9',name:'Poulet',unit:'pièce',qty:3},{id:'i10',name:'Huile',unit:'litre',qty:6},{id:'i11',name:'Tomate',unit:'panier',qty:2},{id:'i12',name:'Oignon',unit:'kg',qty:5}]};
+ const R=function(a,b){return Math.floor(a+Math.random()*(b-a+1))};
+ const findP=function(act,name){return D.products.find(function(p){return p.act===act&&p.name===name})};
+ let base=Date.now();
+ const addSale=function(daysAgo,act,pid,qty,pay,client,note,priceOverride){
+  const date=dISO(new Date(Date.now()-daysAgo*86400000));
+  const p=D.products.find(function(x){return x.id===pid});
+  const price=priceOverride||p.price;
+  const sale={id:uid(),ts:base-(daysAgo*86400000+R(1,80000000)),date:date,act:act,name:p.name,prod:pid,qty:qty,price:price,pay:pay,client:client||'',note:note||'',total:Math.round(qty*price),kind:p.kind};
+  if(p.kind==='recharge'&&p.size)sale.effects={act:act,size:p.size,p:-qty,v:qty,c:0};
+  else if(p.kind==='definitive'&&p.size)sale.effects={act:act,size:p.size,p:-qty,v:0,c:0};
+  else if(p.kind==='bouteille'&&p.size)sale.effects={act:act,size:p.size,p:-qty,v:0,c:qty};
+  D.sales.push(sale);
+ };
+ const addExp=function(daysAgo,act,cat,label,amount){
+  D.expenses.push({id:uid(),ts:base-(daysAgo*86400000+R(1,80000000)),date:dISO(new Date(Date.now()-daysAgo*86400000)),act:act,cat:cat,label:label,amount:amount,note:''});
+ };
+ for(let i=13;i>=0;i--){
+  const d=new Date(Date.now()-i*86400000);const dow=d.getDay();const we=dow===6||dow===0;
+  /* Gaz 1 : tous les jours */
+  const nb12=R(6,16),nb6=R(3,8);
+  for(let k=0;k<nb12;k++)addSale(i,'g1',findP('g1','Recharge B12.5').id,1,'esp');
+  for(let k=0;k<nb6;k++)addSale(i,'g1',findP('g1','Recharge B6').id,1,Math.random()<0.15?'mm':'esp');
+  if(R(1,10)===3)addSale(i,'g1',findP('g1','Bouteille B6 (vente définitive)').id,1,'esp');
+  if(R(1,12)===4)addSale(i,'g1',findP('g1','Bouteille B12.5 (vente définitive)').id,1,'esp');
+  if(i%3===1){const e={id:uid(),ts:base-(i*86400000+R(1,80000000)),date:dISO(new Date(Date.now()-i*86400000)),act:'g1',cat:'Achat gaz',label:'Chargement dépôt (30 × B12.5 + 10 × B6)',amount:R(215000,235000),note:'',effects:{act:'g1',size:'B12.5',p:30,v:30,c:0}};D.expenses.push(e)}
+  if(i===2)addExp(i,'g1','Transport','Transport chargement',2500);
+  if(i===10)addExp(i,'g1','Taxe & patente','Taxe communale',15000);
+  /* Gaz 2 : démarrage, plus petit */
+  const nb12b=R(2,7),nb6b=R(1,4);
+  for(let k=0;k<nb12b;k++)addSale(i,'g2',findP('g2','Recharge B12.5').id,1,'esp');
+  for(let k=0;k<nb6b;k++)addSale(i,'g2',findP('g2','Recharge B6').id,1,'esp');
+  if(i%3===0){const e={id:uid(),ts:base-(i*86400000+R(1,80000000)),date:dISO(new Date(Date.now()-i*86400000)),act:'g2',cat:'Achat gaz',label:'Chargement dépôt (12 × B12.5 + 5 × B6)',amount:R(95000,105000),note:'',effects:{act:'g2',size:'B12.5',p:12,v:12,c:0}};D.expenses.push(e)}
+  if(i===8)addExp(i,'g2','Salaire','Salaire aide magasin',15000);
+  /* Poisson & poulet braisés : le week-end */
+  if(we){
+   for(let k=0;k<R(10,16);k++)addSale(i,'f1',findP('f1','Poisson braisé').id,1,'esp');
+   for(let k=0;k<R(5,9);k++)addSale(i,'f1',findP('f1','Poulet braisé').id,1,'esp');
+   for(let k=0;k<R(3,7);k++)addSale(i,'f1',findP('f1','Poisson + attiéké').id,1,'esp');
+   for(let k=0;k<R(2,5);k++)addSale(i,'f1',findP('f1','Boisson').id,1,'esp');
+   addExp(i,'f1','Achat poisson','Poisson au marché',R(25000,35000));
+   addExp(i,'f1','Achat poulet','Poulets fermiers',R(20000,30000));
+   addExp(i,'f1','Charbon','Sac de charbon',2500);
+  }
+  /* Repas sur commande : jours de semaine */
+  if(!we){
+   const nb=R(2,6);
+   for(let k=0;k<nb;k++)addSale(i,'m1',findP('m1','Plat du jour').id,1,'esp');
+   if(R(1,4)===1)addSale(i,'m1',findP('m1','Repas amélioré').id,1,'mm');
+   if(i%2===0)addExp(i,'m1','Achat ingrédients','Ingrédients (riz, poisson, condiments)',R(8000,15000));
+  }
+ }
+ /* Crédits */
+ addSale(1,'g1',findP('g1','Recharge B12.5').id,1,'credit','Aya K.','');
+ addSale(3,'g1',findP('g1','Recharge B12.5').id,1,'credit','Aya K.','');
+ addSale(4,'g1',findP('g1','Recharge B6').id,1,'credit','Yao D.','');
+ addSale(5,'m1',findP('m1','Repas événement / fête').id,5,'credit','Mme Affoué','commande mariage');
+ D.payments.push({id:uid(),ts:Date.now()-2*86400000,date:dISO(new Date(Date.now()-2*86400000)),client:'Aya K.',amount:7000,note:'acompte'});
+ /* Consignations fournisseurs : déjà gérées plus bas */
+ /* Consignations versées aux fournisseurs (argent immobilisé, pas des dépenses) */
+ D.supplierCautions.push({id:uid(),ts:base-12*86400000,date:dISO(new Date(Date.now()-12*86400000)),supplier:'Dépôt Total (exemple)',type:'in',amount:300000,note:'40 bouteilles B12.5',act:'g1',size:'B12.5',qty:40,state:'vides',via:'direct'});
+ D.supplierCautions.push({id:uid(),ts:base-9*86400000,date:dISO(new Date(Date.now()-9*86400000)),supplier:'Dépôt Oryx (exemple)',type:'in',amount:150000,note:'25 bouteilles B12.5',act:'g2',size:'B12.5',qty:25,state:'vides',via:'direct'});
+ D.supplierCautions.push({id:uid(),ts:base-2*86400000,date:dISO(new Date(Date.now()-2*86400000)),supplier:'Dépôt Oryx (exemple)',type:'out',amount:50000,note:'retour de 8 bouteilles',act:'g2',size:'B12.5',qty:8,state:'vides',via:'direct'});
+ D.log.unshift({ts:Date.now(),act:'g1',text:'Exemple : voici à quoi ressemble le journal des mouvements de stock.'});
+ D.settings.sync=DB.settings.sync||{url:'',key:'',pass:''};
+ DB=D;DB.moves=rebuildMoves();save();render();toast('Données d\'exemple chargées ✓ (15 jours)');
+}
+function hasPreDemoBackup(){try{return !!store.getItem(KEY+'_predemo')}catch(e){return false}}
+function restorePreDemo(){
+ try{
+  const raw=store.getItem(KEY+'_predemo');
+  if(!raw){toast('Aucune sauvegarde avant-exemple trouvée');return}
+  DB=normalizeDb(JSON.parse(raw));
+  DB.settings.sync=DB.settings.sync||{url:'',key:'',pass:''};
+  save();render();toast('✅ Tes données ont été restaurées');
+ }catch(e){toast('⚠️ Impossible de restaurer')}
+}
+function wipeAll(){const syncCfg=DB.settings.sync||{url:'',key:'',pass:''};DB=seed();DB.settings.sync=syncCfg;save();render();toast('Toutes les données ont été effacées')}
+
+/* ============================ Init ============================ */
+/* Mode hors connexion : enregistre le service worker quand l'app est hébergée (https/http).
+   Sur un fichier local (file://), le navigateur n'autorise pas le SW : l'app marche quand même. */
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+ window.addEventListener('load',function(){
+  try{navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
+ });
+}
+/* Synchronisation au démarrage : récupère les données en ligne si configurée */
+if(isSyncConfigured()){
+ cloudPull().then(function(r){setSyncStatus(r);if(r.ok&&r.ts)render()});
+}
+$('#today').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+render();
+if(pinIsSet()){showLock()}
+if(!DB.settings.welcomeDone){
+ DB.settings.welcomeDone=true;save();
+ openModal('👋 Bienvenue dans MISS KOUYATE SHOP !',
+  '<div style="line-height:1.6;color:#475569">Cet outil va t\'aider à suivre :<br>💰 tes <b>ventes</b> (gaz, poisson & poulet braisés, repas sur commande)<br>🧾 tes <b>dépenses</b> (charges)<br>📦 ton <b>stock</b> de bouteilles de gaz et d\'ingrédients<br>📊 ton <b>bénéfice</b> par jour, semaine et mois<br>🧮 la <b>rentabilité de chaque activité</b> (comptabilité analytique)<br><br><b>1.</b> Va dans <b>Menu → Réglages</b> pour vérifier tes produits et tes prix (ce sont des prix d\'exemple !).<br><b>2.</b> Va dans <b>Stock → Ajuster</b> pour saisir ton stock réel de bouteilles.<br><b>3.</b> Enregistre tes ventes dès aujourd\'hui !</div>',
+  {primary:'✅ Commencer',onSubmit:function(){openCreatePin()}});
+}
+/* ============================ CODE D'ACCÈS (PIN) ============================ */
+function pinHash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return 'p'+h.toString(36)}
+function pinStored(){try{return store.getItem(KEY+'_pin')||''}catch(e){return ''}}
+function pinIsSet(){return !!pinStored()}
+function showLock(){
+ const root=document.getElementById('lock-root');
+ if(!root)return;
+ let entered='';
+ function render(){
+  let dots='';
+  for(let i=0;i<4;i++)dots+='<div class="pin-dot'+(entered.length>i?' on':'')+'"></div>';
+  root.innerHTML='<div class="lock-ov"><div class="lock-box">'+
+   '<div style="font-size:36px">🔒</div>'+
+   '<div style="font-weight:800;font-size:17px;margin-top:6px">MISS KOUYATE SHOP</div>'+
+   '<div class="small-txt" style="margin:4px 0 12px">Entre ton code secret</div>'+
+   '<div class="pin-dots">'+dots+'</div>'+
+   '<div id="pin-msg" style="min-height:18px;font-size:12.5px;color:var(--red);margin:4px 0"></div>'+
+   '<div class="pin-pad">'+['1','2','3','4','5','6','7','8','9','C','0','⌫'].map(function(k){return '<button class="pin-key" onclick="pinKey('+"'"+k+"'"+')">'+k+'</button>'}).join('')+'</div>'+
+   '</div></div>';
+ }
+ function check(){
+  if(pinHash(entered)===pinStored()){root.innerHTML='';toast('Bienvenue 👋')}
+  else{entered='';render();const m=document.getElementById('pin-msg');if(m)m.textContent='Code incorrect, réessaie'}
+ }
+ window.pinKey=function(k){
+  if(k==='C'){entered='';render();return}
+  if(k==='⌫'){entered=entered.slice(0,-1);render();return}
+  if(entered.length<4){entered+=k;render();if(entered.length===4)setTimeout(check,130)}
+ };
+ render();
+}
+function openCreatePin(){
+ openModal('🔒 Choisis ton code secret',
+  '<div class="hint">Ce code protégera l'+"'"+'accès à l'+"'"+'application sur cet appareil. Choisis 4 à 6 chiffres faciles pour toi (ex : une année). Tu pourras le changer dans Réglages.</div>'+
+  '<div class="field"><label>Ton code (4 à 6 chiffres)</label><input class="inp" id="pin1" type="password" inputmode="numeric" maxlength="6" placeholder="••••"></div>'+
+  '<div class="field"><label>Répète le code</label><input class="inp" id="pin2" type="password" inputmode="numeric" maxlength="6" placeholder="••••"></div>',
+  {primary:'Enregistrer le code',onSubmit:function(){
+   const a=val('pin1'),b=val('pin2');
+   if(!/^[0-9]{4,6}$/.test(a)){toast('Mets 4 à 6 chiffres');return false}
+   if(a!==b){toast('Les deux codes ne sont pas identiques');return false}
+   try{store.setItem(KEY+'_pin',pinHash(a))}catch(e){}
+   toast('✅ Code enregistré — garde-le bien !');return true;
+  }});
+}
+function openChangePin(){
+ openModal('🔒 Changer le code secret',
+  '<div class="field"><label>Code actuel</label><input class="inp" id="pin_old" type="password" inputmode="numeric" maxlength="6"></div>'+
+  '<div class="field"><label>Nouveau code (4 à 6 chiffres)</label><input class="inp" id="pin_n1" type="password" inputmode="numeric" maxlength="6" placeholder="••••"></div>'+
+  '<div class="field"><label>Répète le nouveau code</label><input class="inp" id="pin_n2" type="password" inputmode="numeric" maxlength="6" placeholder="••••"></div>',
+  {primary:'Changer',onSubmit:function(){
+   if(pinHash(val('pin_old'))!==pinStored()){toast('Code actuel incorrect');return false}
+   const a=val('pin_n1'),b=val('pin_n2');
+   if(!/^[0-9]{4,6}$/.test(a)){toast('Mets 4 à 6 chiffres');return false}
+   if(a!==b){toast('Les deux codes ne sont pas identiques');return false}
+   try{store.setItem(KEY+'_pin',pinHash(a))}catch(e){}
+   toast('✅ Code changé');return true;
+  }});
+}
+function disablePin(){
+ confirmModal('Désactiver le code ?','L'+"'"+'application s'+"'"+'ouvrira sans code sur cet appareil.',function(){
+  try{store.removeItem(KEY+'_pin')}catch(e){}
+  toast('Code désactivé');render();
+ });
+}
+
+/* Accès interne pour tests + gestionnaires inline (toujours à jour) */
+try{
+ Object.defineProperty(window,'DB',{get:function(){return DB},set:function(v){DB=v},configurable:true});
+}catch(e){window.DB=DB}
+window.state=state;
+window.__app={getDB:function(){return DB},getState:function(){return state}};
+
+</script>
+</body>
+</html>
