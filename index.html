@@ -547,7 +547,7 @@ function viewHome(){
 
   kpi('Consignations fournisseurs',money(suppCautBal()),'Argent immobilisé (à récupérer)')+
   kpi('Bénéfice du mois',money(month.ben),month.ben>=0?'good':'bad')+
-  kpi('Stock gaz (valeur d\achat)',money(stockValueGaz()),'Valeur de vente potentielle : '+money(stockValueSale()))+
+  kpi('Stock gaz (valeur d\'achat)',money(stockValueGaz()),'Valeur de vente potentielle : '+money(stockValueSale()))+
   kpi('Marge potentielle du stock',money(stockValueSale()-stockValueGaz()),'Avant charges (les charges ne sont pas encore connues)')+
  '</div>'+
  '<div class="hint" style="margin:6px 0 8px">💡 <b>Bénéfice = ventes − coût du gaz vendu − charges.</b> Le gaz acheté au dépôt <b>reste en stock</b> (c\'est de la valeur disponible) : on ne compte en perte que le coût du gaz réellement vendu.</div><div class="card" style="display:flex;gap:10px"><button class="btn btn-pri" style="flex:1" onclick="go(\'ventes\')">➕ Nouvelle vente</button><button class="btn" style="flex:1" onclick="openExpense()">➖ Dépense</button></div>'+
@@ -856,7 +856,7 @@ function viewReglages(){
   '<button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="openAddProduct(\''+(setAct||'')+'\')">➕ Ajouter un produit</button></div>'+
   '<h2 class="sec">Catégories de dépenses</h2><div class="card"><div>'+cats+'</div><div style="display:flex;gap:8px;margin-top:8px"><input class="inp" id="nc" placeholder="Nouvelle catégorie…" style="flex:1"><button class="btn btn-sm btn-ghost" onclick="addCat()">Ajouter</button></div></div>'+
   '<h2 class="sec">Stock & consignes</h2><div class="card"><div class="grid2"><div class="field"><label>Alerte pleines si moins de…</label><input class="inp" type="text" inputmode="decimal" id="sp2" value="'+DB.settings.seuilPleines+'"></div><div class="field"><label>Alerte vides si plus de…</label><input class="inp" type="text" inputmode="decimal" id="sv2" value="'+DB.settings.seuilVides+'"></div></div><div style="margin-top:10px">'+cons+'</div>'+
-  '<div class="small-txt" style="margin:8px 0 4px"><b>Prix d\achat au dépôt (par bouteille)</b> — utilisé pour remplir automatiquement le montant des chargements :</div><div class="grid2">'+
+  '<div class="small-txt" style="margin:8px 0 4px"><b>Prix d\'achat au dépôt (par bouteille)</b> — utilisé pour remplir automatiquement le montant des chargements :</div><div class="grid2">'+
   sizes().map(function(sz){return '<div class="field"><label>'+sz+' (F)</label><input class="inp" type="text" inputmode="decimal" id="pa_'+sz+'" value="'+(DB.settings.prixAchat&&DB.settings.prixAchat[sz]!==undefined?DB.settings.prixAchat[sz]:'')+'"></div>'}).join('')+'</div>'+
   '<button class="btn btn-sm btn-ghost" onclick="saveStockSettings()">Enregistrer</button></div>'+
   '<h2 class="sec">Sécurité</h2><div class="card"><b>🔒 Code d\'accès</b><div class="hint" style="margin:6px 0 10px">Le code verrouille l\'application sur cet appareil. Choisis le même code sur tous les appareils pour ne pas t\'embrouiller.</div><div style="display:flex;gap:8px">'+(pinIsSet()?'<button class="btn btn-sm" style="flex:1" onclick="openChangePin()">Changer le code</button><button class="btn btn-sm btn-danger" style="flex:1" onclick="disablePin()">Désactiver</button>':'<button class="btn btn-sm btn-pri btn-block" onclick="openCreatePin()">Créer un code d\'accès</button>')+'</div></div>'+'<h2 class="sec">À propos</h2><div class="card" style="text-align:center"><div style="font-weight:800;font-size:16px">MISS KOUYATE SHOP</div><div class="small-txt" style="margin-top:4px">Application de gestion de boutique · v1.0</div><div class="small-txt" style="margin-top:8px">Conception & développement : <b>DOREGO SERVICES</b><br>📞 +225 0502657392</div><button class="btn btn-sm btn-ghost" style="margin-top:10px" onclick="goPage(\'mot\')">💌 Lire le petit mot</button></div>'+
@@ -902,7 +902,7 @@ function viewAnalytique(){
   '<div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Activité</th><th style="text-align:right">Ventes</th><th style="text-align:right">Coût du gaz</th><th style="text-align:right">Charges directes</th><th style="text-align:right">Marge brute</th><th style="text-align:right">% marge</th><th style="text-align:right">Charges comm.</th><th style="text-align:right">Résultat net</th></tr>'+rows+
   '<tr style="border-top:2px solid var(--ink)"><td><b>TOTAL</b></td><td style="text-align:right;font-weight:800">'+money(a.s.ventes)+'</td><td style="text-align:right;font-weight:800">'+money(a.s.cmv)+'</td><td style="text-align:right;font-weight:800">'+money(a.s.charges-a.common)+'</td><td style="text-align:right;font-weight:800">'+money(a.s.ventes-a.s.cmv-(a.s.charges-a.common))+'</td><td style="text-align:right">—</td><td style="text-align:right;font-weight:800">'+money(a.common)+'</td><td style="text-align:right;font-weight:800;color:'+(a.s.ben>=0?'var(--grn)':'var(--red)')+'">'+money(a.s.ben)+'</td></tr>'+
   '</table></div></div>'+
-  '<div class="card"><b>📦 Stock de gaz en valeur</b><div class="small-txt" style="margin:4px 0">Pleines au prix d" + BS + "achat + vides au coût d" + BS + "achat : <b>'+money(stockValueGaz())+'</b> — c" + BS + "est de la valeur disponible, pas une perte.</div></div>'+
+  '<div class="card"><b>📦 Stock de gaz en valeur</b><div class="small-txt" style="margin:4px 0">Pleines au prix d\'achat + vides au coût d\'achat : <b>'+money(stockValueGaz())+'</b> — c\'est de la valeur disponible, pas une perte.</div></div>'+
   (best?'<div class="alert ok">⭐ Activité la plus rentable sur la période : <b>'+esc(best.name)+'</b> ('+money(best.net)+' de résultat net).</div>':'')+
   '<div class="small-txt" style="color:var(--mut);margin-top:4px">La répartition des charges communes est une estimation. Pour des résultats plus précis, note chaque dépense dans la bonne activité.</div>');
 }
@@ -1158,7 +1158,7 @@ function openChargement(act){
   '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="c_size" onchange="calcChargementDiff()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
   '<div class="field"><label>Pleines reçues</label><input class="inp" id="c_p" type="text" inputmode="decimal" value="0" oninput="calcChargementDiff()"></div>'+
   '<div class="field"><label>Vides rendues</label><input class="inp" id="c_v" type="text" inputmode="decimal" value="0" oninput="calcChargementDiff()"></div>'+
-  '<div class="field"><label>Montant payé (F) ★</label><input class="inp" id="c_amt" type="text" inputmode="decimal" placeholder="0 = pas de dépense" oninput="this.dataset.touched=\'1\'"><div class="small-txt" style="margin-top:3px">🤖 Rempli automatiquement : pleines reçues × prix d\achat (Réglages). Modifiable.</div></div></div>'+
+  '<div class="field"><label>Montant payé (F) ★</label><input class="inp" id="c_amt" type="text" inputmode="decimal" placeholder="0 = pas de dépense" oninput="this.dataset.touched=\'1\'"><div class="small-txt" style="margin-top:3px">🤖 Rempli automatiquement : pleines reçues × prix d\'achat (Réglages). Modifiable.</div></div></div>'+
   '<div class="field"><label>Fournisseur (dépôt) ★</label><input class="inp" id="c_sup" placeholder="Ex : Dépôt Total" list="sup-list"><datalist id="sup-list">'+knownSuppliers().map(function(sn){return '<option value="'+esc(sn)+'">'}).join('')+'</datalist></div>'+'<div id="c_diff"></div>'+
   '<div id="c_cons_wrap" style="display:none;border:1px solid #fde68a;background:#fffbeb;border-radius:10px;padding:10px 12px">'+
   '<div class="small-txt" style="margin-bottom:8px">📦 La différence entre pleines reçues et vides rendues = <b>nouvelles bouteilles gardées</b> (nouvelle consignation) ou <b>bouteilles restituées</b> (remboursement de consignation).</div>'+
@@ -1931,11 +1931,19 @@ if(isSyncConfigured()){
 $('#today').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 render();
 if(pinIsSet()){showLock()}
+if(!pinIsSet()&&DB.settings.welcomeDone){
+ try{
+  if(!store.getItem(KEY+'_pin_offered')){
+   store.setItem(KEY+'_pin_offered','1');
+   openModal('🔒 Protège ton application','<div class="hint">Crée un code secret (4 à 6 chiffres) : il sera demandé à chaque ouverture pour protéger tes données.</div>',{primary:'Créer mon code',onSubmit:function(){openCreatePin();return false}});
+  }
+ }catch(e){}
+}
 if(!DB.settings.welcomeDone){
  DB.settings.welcomeDone=true;save();
  openModal('👋 Bienvenue dans MISS KOUYATE SHOP !',
   '<div style="line-height:1.6;color:#475569">Cet outil va t\'aider à suivre :<br>💰 tes <b>ventes</b> (gaz, poisson & poulet braisés, repas sur commande)<br>🧾 tes <b>dépenses</b> (charges)<br>📦 ton <b>stock</b> de bouteilles de gaz et d\'ingrédients<br>📊 ton <b>bénéfice</b> par jour, semaine et mois<br>🧮 la <b>rentabilité de chaque activité</b> (comptabilité analytique)<br><br><b>1.</b> Va dans <b>Menu → Réglages</b> pour vérifier tes produits et tes prix (ce sont des prix d\'exemple !).<br><b>2.</b> Va dans <b>Stock → Ajuster</b> pour saisir ton stock réel de bouteilles.<br><b>3.</b> Enregistre tes ventes dès aujourd\'hui !</div>',
-  {primary:'✅ Commencer',onSubmit:function(){openCreatePin()}});
+  {primary:'✅ Commencer',onSubmit:function(){openCreatePin();return false}});
 }
 /* ============================ CODE D'ACCÈS (PIN) ============================ */
 function pinHash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return 'p'+h.toString(36)}
@@ -1944,6 +1952,10 @@ function pinIsSet(){return !!pinStored()}
 function showLock(){
  const root=document.getElementById('lock-root');
  if(!root)return;
+ if(!pinIsSet()){
+  openModal('🔒 Code d\'accès','<div class="hint">Pour verrouiller l\'application, crée d\'abord ton code secret (4 à 6 chiffres).</div>',{primary:'Créer mon code',onSubmit:function(){openCreatePin();return false}});
+  return;
+ }
  let entered='';
  function render(){
   let dots='';
