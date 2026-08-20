@@ -961,7 +961,7 @@ function syncCard(){
   '<div class="grid2"><div class="field"><label>Mot de passe de synchro</label><input class="inp" id="sy_pass" placeholder="le même sur tous les appareils" value="'+esc(s.pass)+'"></div><div class="field"><label>&nbsp;</label><button class="btn btn-sm btn-ghost" style="width:100%;min-height:46px" onclick="document.getElementById(\'sy_pass\').value=genSyncPass()">🎲 Générer un mot de passe</button></div></div>'+
   '<div class="small-txt" style="margin-top:4px">💡 Copie ce mot de passe sur chaque appareil (ex : WhatsApp).</div>'+
   '<button class="btn btn-sm btn-pri btn-block" style="margin-top:10px" onclick="saveSyncConfig()">💾 Enregistrer la configuration</button>'+
-  '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-sm" style="flex:1" onclick="syncNow()">📤 Envoyer en ligne</button><button class="btn btn-sm" style="flex:1" onclick="pullNow()">📥 Récupérer</button></div>'+
+  '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-sm" style="flex:1" onclick="syncNow()">📤 Envoyer en ligne</button><button class="btn btn-sm" style="flex:1" onclick="pullNow()">📥 Récupérer</button></div>'+(isSyncConfigured()?'<button class="btn btn-sm btn-danger btn-block" style="margin-top:8px" onclick="askDeleteCloud()">🗑 Supprimer les données en ligne</button>':'')+
   statusHtml+'</div>';
 }
 function viewSauvegarde(){
@@ -1456,6 +1456,21 @@ function scheduleSync(){
   if(typeof navigator!=='undefined'&&navigator.onLine===false)return;
   cloudPush().then(function(r){if(r.ok)setSyncStatus(r)});
  },1200);
+}
+async function cloudDelete(){
+ const s=DB.settings.sync;
+ if(!isSyncConfigured()){toast('Synchronisation non configurée');return}
+ toast('🗑 Suppression de la copie en ligne…');
+ try{
+  const base=String(s.url).replace(/\/+$/,'');
+  const res=await fetch(base+'/rest/v1/shop_data?key=eq.data_'+encodeURIComponent(s.pass),{method:'DELETE',headers:syncHeaders(s)});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  try{store.removeItem(KEY+'_sync')}catch(e){}
+  toast('✅ Copie en ligne supprimée — cet appareil garde toutes ses données');
+ }catch(e){toast('⚠️ Suppression impossible : '+String(e).slice(0,80))}
+}
+function askDeleteCloud(){
+ confirmModal('🗑 Supprimer les données EN LIGNE ?','Cela supprime UNIQUEMENT la copie dans le coffre-fort en ligne. Les données de CET appareil restent intactes, et seront renvoyées en ligne à la prochaine synchronisation. À utiliser seulement pour repartir de zéro en ligne.',function(){cloudDelete()},'Oui, supprimer en ligne');
 }
 function syncNow(){
  if(!isSyncConfigured()){toast('Configure d\'abord la synchronisation (champs ci-dessus)');return}
