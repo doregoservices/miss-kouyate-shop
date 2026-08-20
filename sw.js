@@ -3,7 +3,7 @@
    l'application elle-même est enregistrée en cache, et les données
    (ventes, dépenses…) sont sauvegardées sur l'appareil par l'application.
    Pour mettre à jour l'application : changer le numéro de version ci-dessous. */
-const CACHE = 'miss-kouyate-v18';
+const CACHE = 'miss-kouyate-v19';
 const ASSETS = [
   './',
   './index.html',
