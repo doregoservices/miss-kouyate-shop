@@ -201,7 +201,7 @@ function save(){try{store.setItem(KEY,JSON.stringify(DB))}catch(e){toast('⚠️
 function seed(){
  return {
   v:1,
-  settings:{businessName:'MISS KOUYATE SHOP',seuilPleines:3,seuilVides:12,consignes:{B6:10000,'B12.5':15000,B15:20000,B25:30000},prixAchat:{B6:2400,'B12.5':6600,B15:9000,B25:15000},welcomeDone:false,alloc:'sales'},
+  settings:{businessName:'MISS KOUYATE SHOP',seuilPleines:3,seuilVides:12,consignes:{B6:10000,'B12.5':15000,B15:20000,B25:30000},prixAchat:{B6:2400,'B12.5':6600,B15:9000,B25:15000},welcomeDone:false,alloc:'sales',pinEveryOpen:true},
   activities:[
    {id:'g1',name:'Magasin de gaz 1',type:'gaz'},
    {id:'g2',name:'Magasin de gaz 2',type:'gaz'},
@@ -245,6 +245,7 @@ function normalizeDb(data){
  if(!data.settings)data.settings=S.settings;
  if(data.settings.businessName==='Ma Boutique')data.settings.businessName='MISS KOUYATE SHOP';
  if(!data.settings.alloc)data.settings.alloc='sales';
+ if(data.settings.pinEveryOpen===undefined)data.settings.pinEveryOpen=true;
  if(!data.settings.sync)data.settings.sync={url:'',key:'',pass:''};
  data.settings.consignes=Object.assign({},S.settings.consignes,data.settings.consignes||{});
  data.settings.prixAchat=Object.assign({},S.settings.prixAchat,data.settings.prixAchat||{});
@@ -859,7 +860,8 @@ function viewReglages(){
   '<div class="small-txt" style="margin:8px 0 4px"><b>Prix d\'achat au dépôt (par bouteille)</b> — utilisé pour remplir automatiquement le montant des chargements :</div><div class="grid2">'+
   sizes().map(function(sz){return '<div class="field"><label>'+sz+' (F)</label><input class="inp" type="text" inputmode="decimal" id="pa_'+sz+'" value="'+(DB.settings.prixAchat&&DB.settings.prixAchat[sz]!==undefined?DB.settings.prixAchat[sz]:'')+'"></div>'}).join('')+'</div>'+
   '<button class="btn btn-sm btn-ghost" onclick="saveStockSettings()">Enregistrer</button></div>'+
-  '<h2 class="sec">Sécurité</h2><div class="card"><b>🔒 Code d\'accès</b><div class="hint" style="margin:6px 0 10px">Le code verrouille l\'application sur cet appareil. Choisis le même code sur tous les appareils pour ne pas t\'embrouiller.</div><div style="display:flex;gap:8px">'+(pinIsSet()?'<button class="btn btn-sm" style="flex:1" onclick="openChangePin()">Changer le code</button><button class="btn btn-sm btn-danger" style="flex:1" onclick="disablePin()">Désactiver</button>':'<button class="btn btn-sm btn-pri btn-block" onclick="openCreatePin()">Créer un code d\'accès</button>')+'</div></div>'+'<h2 class="sec">À propos</h2><div class="card" style="text-align:center"><div style="font-weight:800;font-size:16px">MISS KOUYATE SHOP</div><div class="small-txt" style="margin-top:4px">Application de gestion de boutique · v1.0</div><div class="small-txt" style="margin-top:8px">Conception & développement : <b>DOREGO SERVICES</b><br>📞 +225 0502657392</div><button class="btn btn-sm btn-ghost" style="margin-top:10px" onclick="goPage(\'mot\')">💌 Lire le petit mot</button></div>'+
+  '<h2 class="sec">Sécurité</h2><div class="card"><b>🔒 Code d\'accès</b><div class="hint" style="margin:6px 0 10px">Le code verrouille l\'application sur cet appareil. Choisis le même code sur tous les appareils pour ne pas t\'embrouiller.</div><div style="display:flex;gap:8px">'+(pinIsSet()?'<button class="btn btn-sm" style="flex:1" onclick="openChangePin()">Changer le code</button>'+
+  '<button class="btn btn-sm" style="flex:1;margin-left:8px" onclick="togglePinEveryOpen()">À chaque ouverture : '+(DB.settings.pinEveryOpen!==false?'OUI':'NON')+'</button><button class="btn btn-sm btn-danger" style="flex:1" onclick="disablePin()">Désactiver</button>':'<button class="btn btn-sm btn-pri btn-block" onclick="openCreatePin()">Créer un code d\'accès</button>')+'</div></div>'+'<h2 class="sec">À propos</h2><div class="card" style="text-align:center"><div style="font-weight:800;font-size:16px">MISS KOUYATE SHOP</div><div class="small-txt" style="margin-top:4px">Application de gestion de boutique · v1.0</div><div class="small-txt" style="margin-top:8px">Conception & développement : <b>DOREGO SERVICES</b><br>📞 +225 0502657392</div><button class="btn btn-sm btn-ghost" style="margin-top:10px" onclick="goPage(\'mot\')">💌 Lire le petit mot</button></div>'+
   '<h2 class="sec">Données</h2><div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn btn-sm" onclick="goPage(\'sauvegarde\')">💾 Sauvegarde & restauration</button><button class="btn btn-sm" onclick="confirmModal(\'Charger l\'exemple ?\',\'Les données actuelles seront remplacées par un exemple de 15 jours (elles seront sauvegardées automatiquement).\',function(){loadDemo()},\'Oui, charger\')">🧪 Voir un exemple</button><button class="btn btn-sm btn-danger" onclick="confirmModal(\'Tout effacer ?\',\'Toutes les ventes, dépenses et stocks seront supprimés définitivement. Pense à faire une sauvegarde avant !\',function(){wipeAll()},\'Oui, tout effacer\')">🗑 Tout effacer</button></div>');
 }
 
@@ -1930,7 +1932,7 @@ if(isSyncConfigured()){
 }
 $('#today').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 render();
-if(pinIsSet()){showLock()}
+if(pinIsSet()&&DB.settings.pinEveryOpen!==false){showLock()}
 if(!pinIsSet()&&DB.settings.welcomeDone){
  try{
   if(!store.getItem(KEY+'_pin_offered')){
@@ -2006,6 +2008,11 @@ function openChangePin(){
    try{store.setItem(KEY+'_pin',pinHash(a))}catch(e){}
    toast('✅ Code changé');return true;
   }});
+}
+function togglePinEveryOpen(){
+ DB.settings.pinEveryOpen=DB.settings.pinEveryOpen===false;
+ save();render();
+ toast(DB.settings.pinEveryOpen?'Code demandé à chaque ouverture ✓':'Code demandé seulement avec « Verrouiller » ✓');
 }
 function disablePin(){
  confirmModal('Désactiver le code ?','L'+"'"+'application s'+"'"+'ouvrira sans code sur cet appareil.',function(){
