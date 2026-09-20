@@ -89,7 +89,7 @@ nav.bottom button.on{color:var(--tea);font-weight:800}
 .empty .e{font-size:34px;display:block;margin-bottom:6px}
 .date-head{font-weight:800;font-size:12.5px;color:var(--mut);margin:12px 0 2px;text-transform:capitalize}
 .hint{font-size:12.5px;color:var(--mut)}
-.alert{display:flex;gap:8px;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:8px}
+.alert{display:block;line-height:1.5;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:8px}
 .alert.ok{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
 .toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:100;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:92vw;text-align:center;animation:tin .2s}
 @keyframes up{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
@@ -247,8 +247,23 @@ function normalizeDb(data){
  if(!data.settings.alloc)data.settings.alloc='sales';
  if(data.settings.pinEveryOpen===undefined)data.settings.pinEveryOpen=true;
  if(!data.settings.sync)data.settings.sync={url:'',key:'',pass:''};
- data.settings.consignes=Object.assign({},S.settings.consignes,data.settings.consignes||{});
- data.settings.prixAchat=Object.assign({},S.settings.prixAchat,data.settings.prixAchat||{});
+ /* Tailles de bouteilles : la liste est libre (ajout / renommage / suppression dans Réglages).
+    On ne réimpose plus les tailles d'exemple ; on garantit juste que toute taille utilisée par un produit
+    ou par un stock non vide est bien enregistrée (sinon elle n'apparaîtrait pas dans l'onglet Stock).
+    Chaque LIGNE de stock (clé) a une méta {taille, marque} : sans méta = taille seule, sans marque. */
+ if(!data.settings.consignes||typeof data.settings.consignes!=='object'||!Object.keys(data.settings.consignes).length)data.settings.consignes=Object.assign({},S.settings.consignes);
+ if(!data.settings.prixAchat||typeof data.settings.prixAchat!=='object')data.settings.prixAchat={};
+ if(!data.settings.sizeMeta||typeof data.settings.sizeMeta!=='object')data.settings.sizeMeta={};
+ if(!Array.isArray(data.products))data.products=S.products;
+ const metaOf=function(k){const m=data.settings.sizeMeta[k];return {taille:(m&&m.taille)||k,marque:(m&&m.marque)||''}};
+ const tailleKnown=function(t){return Object.keys(data.settings.consignes).some(function(k){return metaOf(k).taille===t})};
+ /* un produit est rattaché à une TAILLE (pas à une marque) */
+ data.products.forEach(function(p){if(p.size){const m=metaOf(p.size);if(m.marque&&data.settings.consignes[p.size]!==undefined)p.size=m.taille}});
+ data.products.forEach(function(p){if(p.size&&data.settings.consignes[p.size]===undefined&&!tailleKnown(p.size))data.settings.consignes[p.size]=0});
+ Object.keys(data.stockGaz||{}).forEach(function(act){const m=data.stockGaz[act]||{};Object.keys(m).forEach(function(sz){const st=m[sz];if(st&&((st.pleines||0)>0||(st.vides||0)>0)&&data.settings.consignes[sz]===undefined)data.settings.consignes[sz]=0})});
+ Object.keys(data.settings.consignes).forEach(function(sz){if(data.settings.prixAchat[sz]===undefined)data.settings.prixAchat[sz]=S.settings.prixAchat[sz]||0});
+ Object.keys(data.settings.consignes).forEach(function(sz){const m=data.settings.sizeMeta[sz];if(!m||!m.taille)data.settings.sizeMeta[sz]={taille:sz,marque:(m&&m.marque)||''}});
+ Object.keys(data.settings.sizeMeta).forEach(function(sz){if(data.settings.consignes[sz]===undefined)delete data.settings.sizeMeta[sz]});
  const legacyNames={'Bouteille B6 (client sans bouteille)':'Bouteille B6 (vente définitive)','Bouteille B12.5 (client sans bouteille)':'Bouteille B12.5 (vente définitive)','Bouteille B6 + consigne':'Bouteille B6 (vente définitive)','Bouteille B12.5 + consigne':'Bouteille B12.5 (vente définitive)'};
  data.products.forEach(function(p){if(p.kind==='bouteille'&&legacyNames[p.name]){p.kind='definitive';p.name=legacyNames[p.name];delete p.deposit}});
  if(!Array.isArray(data.cats)||!data.cats.length)data.cats=S.cats;
@@ -282,6 +297,161 @@ function prodsOf(act){return DB.products.filter(function(p){return p.act===act})
 function prodById(id){return DB.products.find(function(p){return p.id===id})}
 function actColor(act){const i=DB.activities.findIndex(function(a){return a.id===act});const pal=['#0d9488','#2563eb','#d97706','#9333ea','#475569','#0891b2','#be185d'];return pal[((i%7)+7)%7]}
 function sizes(){return Object.keys(DB.settings.consignes)}
+/* ============================ TAILLES & MARQUES DE BOUTEILLES ============================
+   Une LIGNE de stock = une taille (B6, B12.5…) + une marque / fournisseur facultative (Oryx, Total, Petro Ivoire…).
+   La clé de la ligne (ex. « B6 Oryx ») est ce qui est enregistré partout (stock, mouvements, ventes, consignations).
+   settings.sizeMeta[clé] = {taille, marque}. Un PRODUIT gaz est rattaché à une TAILLE : à la vente, on choisit la marque. */
+function cleanSizeName(v,max){return String(v==null?'':v).replace(/[<>"'\\]/g,'').replace(/\s+/g,' ').trim().slice(0,max||14)}
+function sizeMeta(key){const m=(DB.settings.sizeMeta||{})[key];return {taille:(m&&m.taille)||key,marque:(m&&m.marque)||''}}
+function tailleOf(key){return sizeMeta(key).taille}
+function marqueOf(key){return sizeMeta(key).marque}
+function sizeLabel(key){const m=sizeMeta(key);return m.marque?m.taille+' · '+m.marque:m.taille}
+function makeSizeKey(taille,marque){taille=cleanSizeName(taille,14);marque=cleanSizeName(marque,20);return marque?taille+' '+marque:taille}
+function keyExists(key){const k=String(key).toLowerCase();return sizes().some(function(s){return s.toLowerCase()===k})}
+function tailles(){const seen={},out=[];sizes().forEach(function(k){const t=tailleOf(k);if(!seen[t]){seen[t]=1;out.push(t)}});return out}
+function tailleExists(t){const k=String(t).toLowerCase();return tailles().some(function(x){return x.toLowerCase()===k})}
+function linesOf(taille){return sizes().filter(function(k){return tailleOf(k)===taille})}
+function marques(){const seen={},out=[];sizes().forEach(function(k){const m=marqueOf(k);if(m&&!seen[m]){seen[m]=1;out.push(m)}});return out}
+/* lignes de stock utilisables par un produit (sa taille), avec repli sur une clé exacte (anciennes données) */
+function prodLines(p){if(!p||!p.size)return [];const L=linesOf(p.size);if(L.length)return L;return DB.settings.consignes.hasOwnProperty(p.size)?[p.size]:[]}
+function prodStock(act,p){let pl=0,vd=0;prodLines(p).forEach(function(k){const st=stockOf(act,k);pl+=st.pleines;vd+=st.vides});return {pleines:pl,vides:vd}}
+/* prix d'achat d'une ligne ; si non renseigné, on prend celui d'une autre marque de la même taille */
+function prixAchatOf(key){const pa=DB.settings.prixAchat||{};if(pa[key])return pa[key];const L=linesOf(tailleOf(key));for(let i=0;i<L.length;i++){if(pa[L[i]])return pa[L[i]]}return 0}
+function sizeUsage(sz){
+ const t=tailleOf(sz);
+ const prods=DB.products.filter(function(p){return p.size===t||p.size===sz});
+ let pleines=0,vides=0;
+ gazActs().forEach(function(a){const st=DB.stockGaz[a.id]&&DB.stockGaz[a.id][sz];if(st){pleines+=st.pleines||0;vides+=st.vides||0}});
+ return {prods:prods,bottles:pleines+vides,pleines:pleines,vides:vides,lines:linesOf(t).length};
+}
+function tailleUsage(t){const prods=DB.products.filter(function(p){return p.size===t});let pl=0,vd=0;linesOf(t).forEach(function(k){const u=sizeUsage(k);pl+=u.pleines;vd+=u.vides});return {prods:prods,pleines:pl,vides:vd,bottles:pl+vd}}
+/* Crée une ligne de stock (taille + marque facultative). Renvoie la clé, ou null si refus. */
+function addSize(taille,marque,consigne,prixAchat){
+ taille=cleanSizeName(taille,14);marque=cleanSizeName(marque,20);
+ if(!taille){toast('Écris la taille (ex : B6, B12.5, B15)');return null}
+ const key=makeSizeKey(taille,marque);
+ if(keyExists(key)){toast('Cette ligne existe déjà : '+sizeLabel(key));return null}
+ /* même taille écrite différemment (b6 / B6) → on reprend l'écriture existante */
+ tailles().forEach(function(t){if(t.toLowerCase()===taille.toLowerCase())taille=t});
+ const k2=makeSizeKey(taille,marque);
+ if(keyExists(k2)){toast('Cette ligne existe déjà : '+sizeLabel(k2));return null}
+ if(!DB.settings.sizeMeta)DB.settings.sizeMeta={};
+ if(!DB.settings.prixAchat)DB.settings.prixAchat={};
+ DB.settings.consignes[k2]=Math.max(0,Math.round(num(consigne)));
+ DB.settings.prixAchat[k2]=Math.max(0,Math.round(num(prixAchat)));
+ DB.settings.sizeMeta[k2]={taille:taille,marque:marque};
+ gazActs().forEach(function(a){stockOf(a.id,k2)});
+ return k2;
+}
+/* Renomme une clé de ligne PARTOUT (stock, mouvements, ventes, dépenses, consignations, réglages). */
+function renameKey(oldKey,newKey,meta){
+ if(oldKey===newKey){if(meta){if(!DB.settings.sizeMeta)DB.settings.sizeMeta={};DB.settings.sizeMeta[newKey]=meta}return}
+ const remap=function(o){if(!o||typeof o!=='object')return o;const r={};Object.keys(o).forEach(function(k){r[k===oldKey?newKey:k]=o[k]});return r};
+ DB.settings.consignes=remap(DB.settings.consignes);
+ DB.settings.prixAchat=remap(DB.settings.prixAchat||{});
+ DB.settings.sizeMeta=remap(DB.settings.sizeMeta||{});
+ DB.settings.sizeMeta[newKey]=meta||sizeMeta(oldKey);
+ Object.keys(DB.stockGaz).forEach(function(act){DB.stockGaz[act]=remap(DB.stockGaz[act])});
+ DB.moves.forEach(function(m){if(m.size===oldKey)m.size=newKey});
+ DB.supplierCautions.forEach(function(c){if(c.size===oldKey)c.size=newKey});
+ DB.cautions.forEach(function(c){if(c.size===oldKey)c.size=newKey});
+ DB.sales.forEach(function(s){if(s.effects&&s.effects.size===oldKey)s.effects.size=newKey});
+ DB.expenses.forEach(function(e){if(e.effects&&e.effects.size===oldKey)e.effects.size=newKey});
+ DB.products.forEach(function(p){if(p.size===oldKey&&!linesOf(oldKey).length)p.size=newKey});
+ if(state.mSize===oldKey)state.mSize=newKey;
+}
+/* Renomme une TAILLE (toutes ses marques suivent, et les produits aussi). */
+function renameTaille(oldT,newT){
+ newT=cleanSizeName(newT,14);
+ if(!newT||newT===oldT){render();return false}
+ if(tailleExists(newT)){toast('Cette taille existe déjà : '+newT);render();return false}
+ linesOf(oldT).forEach(function(k){const m=marqueOf(k);renameKey(k,makeSizeKey(newT,m),{taille:newT,marque:m})});
+ DB.products.forEach(function(p){if(p.size===oldT)p.size=newT});
+ logStock('gen','Taille renommée : '+oldT+' → '+newT);
+ save();toast('Taille renommée : '+oldT+' → '+newT+' ✓');render();return true;
+}
+/* Change la marque / fournisseur d'une ligne (vide = sans marque). */
+function renameMarque(key,newM){
+ newM=cleanSizeName(newM,20);
+ const t=tailleOf(key);
+ if(newM===marqueOf(key)){render();return false}
+ const newKey=makeSizeKey(t,newM);
+ if(keyExists(newKey)){toast('Cette ligne existe déjà : '+sizeLabel(newKey));render();return false}
+ renameKey(key,newKey,{taille:t,marque:newM});
+ logStock('gen','Marque modifiée : '+key+' → '+newKey);
+ save();toast((newM?'Marque « '+newM+' »':'Sans marque')+' pour '+t+' ✓');render();return true;
+}
+/* Supprime une ligne (taille+marque). Refusé s'il reste des bouteilles, ou si c'est la dernière ligne d'une taille utilisée par des produits. */
+function delSize(sz){
+ const u=sizeUsage(sz);
+ if(u.bottles>0){toast('❌ Impossible : il reste '+u.bottles+' bouteille(s) '+sizeLabel(sz)+' en stock. Mets d\'abord le stock à 0 (Stock → Ajuster).');return false}
+ if(u.lines<=1&&u.prods.length){toast('❌ Impossible : '+u.prods.length+' produit(s) utilisent la taille '+tailleOf(sz)+'. Supprime-les ou change leur taille dans « Produits & prix ».');return false}
+ if(sizes().length<=1){toast('Garde au moins une taille de bouteille');return false}
+ confirmModal('Supprimer « '+esc(sizeLabel(sz))+' » ?','Cette ligne ne sera plus proposée dans le stock ni dans les formulaires. L\'historique des mouvements reste visible.',function(){
+  delete DB.settings.consignes[sz];if(DB.settings.prixAchat)delete DB.settings.prixAchat[sz];if(DB.settings.sizeMeta)delete DB.settings.sizeMeta[sz];
+  Object.keys(DB.stockGaz).forEach(function(act){if(DB.stockGaz[act])delete DB.stockGaz[act][sz]});
+  logStock('gen','Ligne supprimée : '+sz);
+  save();toast('Supprimé ✓');render();
+ },'Oui, supprimer');
+ return true;
+}
+/* Supprime une taille entière (toutes ses marques). */
+function delTaille(t){
+ const u=tailleUsage(t);
+ if(u.bottles>0){toast('❌ Impossible : il reste '+u.bottles+' bouteille(s) '+t+' en stock. Mets d\'abord le stock à 0 (Stock → Ajuster).');return false}
+ if(u.prods.length){toast('❌ Impossible : '+u.prods.length+' produit(s) utilisent la taille '+t+'. Supprime-les ou change leur taille dans « Produits & prix ».');return false}
+ if(tailles().length<=1){toast('Garde au moins une taille de bouteille');return false}
+ confirmModal('Supprimer la taille « '+esc(t)+' » ?','Toutes ses lignes ('+linesOf(t).map(sizeLabel).join(', ')+') seront retirées du stock et des formulaires. L\'historique reste visible.',function(){
+  linesOf(t).forEach(function(sz){delete DB.settings.consignes[sz];if(DB.settings.prixAchat)delete DB.settings.prixAchat[sz];if(DB.settings.sizeMeta)delete DB.settings.sizeMeta[sz];Object.keys(DB.stockGaz).forEach(function(act){if(DB.stockGaz[act])delete DB.stockGaz[act][sz]})});
+  logStock('gen','Taille supprimée : '+t);
+  save();toast('Taille supprimée ✓');render();
+ },'Oui, supprimer');
+ return true;
+}
+/* Compatibilité (anciens appels) */
+function renameSize(oldKey,newName){return renameTaille(tailleOf(oldKey),newName)}
+function renameTailleAt(i,v){collectStockSettings();const t=tailles()[i];if(t!==undefined)renameTaille(t,v)}
+function delTailleAt(i){collectStockSettings();const t=tailles()[i];if(t!==undefined)delTaille(t)}
+function renameMarqueAt(i,v){collectStockSettings();const sz=sizes()[i];if(sz!==undefined)renameMarque(sz,v)}
+function renameSizeAt(i,v){renameTailleAt(i,v)}
+function delSizeAt(i){collectStockSettings();const sz=sizes()[i];if(sz!==undefined)delSize(sz)}
+/* Modale : nouvelle taille OU nouvelle marque pour une taille existante */
+function openAddSize(presetTaille){
+ collectStockSettings();
+ const gz=gazActs(),T=tailles(),M=marques();
+ const tailleSel='<select class="inp" id="sz_taille" onchange="szTailleChange()">'+T.map(function(t){return '<option value="'+esc(t)+'"'+(t===presetTaille?' selected':'')+'>'+esc(t)+'</option>'}).join('')+'<option value="__new__"'+(!presetTaille?' selected':'')+'>➕ Nouvelle taille…</option></select>';
+ openModal(presetTaille?'➕ Nouvelle marque pour '+presetTaille:'➕ Taille / marque de bouteille',
+  '<div class="hint" style="margin-bottom:4px">Le stock se compte par <b>taille</b> et, si tu le souhaites, par <b>marque / fournisseur</b> (Oryx, Total, Petro Ivoire…). La ligne apparaîtra tout de suite dans 📦 <b>Stock</b>.</div>'+
+  '<div class="field"><label>Taille ★</label>'+tailleSel+'</div>'+
+  '<div class="field" id="sz_name_wrap" style="display:'+(!presetTaille?'':'none')+'"><label>Nom de la nouvelle taille ★</label><input class="inp" id="sz_name" placeholder="Ex : B3, B6, B12.5, B15, B25, B50" maxlength="14"></div>'+
+  '<div class="field"><label>Marque / fournisseur (facultatif)</label><input class="inp" id="sz_marque" list="marques-list" placeholder="Ex : Oryx, Total, Petro Ivoire… (vide = sans marque)" maxlength="20"><datalist id="marques-list">'+M.concat(['Oryx','Total','Petro Ivoire','Shell','Corlay']).filter(function(x,i,a){return a.indexOf(x)===i}).map(function(m){return '<option value="'+esc(m)+'">'}).join('')+'</datalist></div>'+
+  '<div class="grid2"><div class="field"><label>Consigne bouteille (F)</label><input class="inp" id="sz_cons" type="text" inputmode="decimal" placeholder="0"></div>'+
+  '<div class="field"><label>Prix d\'achat au dépôt (F)</label><input class="inp" id="sz_pa" type="text" inputmode="decimal" placeholder="0"></div></div>'+
+  (gz.length?'<div id="sz_prod_wrap"><label class="row" style="gap:10px;cursor:pointer;border-bottom:0;padding:8px 0 0"><input type="checkbox" id="sz_mkprod" checked style="width:20px;height:20px"><span>Créer le produit <b>« Recharge … »</b> dans '+(gz.length===1?'le magasin de gaz':'chaque magasin de gaz ('+gz.length+')')+' s\'il n\'existe pas encore</span></label>'+
+  '<div class="field" id="sz_price_wrap"><label>Prix de vente de la recharge (F)</label><input class="inp" id="sz_price" type="text" inputmode="decimal" placeholder="Ex : 2500"></div></div>':''),
+  {primary:'Ajouter',onSubmit:function(){
+   let t=val('sz_taille');if(t==='__new__'||!t)t=val('sz_name');
+   const key=addSize(t,val('sz_marque'),val('sz_cons'),val('sz_pa'));
+   if(!key)return false;
+   const taille=tailleOf(key);
+   let made=0;
+   const cb=document.getElementById('sz_mkprod');
+   if(cb&&cb.checked){const price=Math.max(0,num(val('sz_price')));gz.forEach(function(a){if(!prodsOf(a.id).some(function(p){return p.kind==='recharge'&&p.size===taille})){DB.products.push({id:uid(),act:a.id,name:'Recharge '+taille,price:price,kind:'recharge',size:taille});made++}})}
+   logStock('gen','Nouvelle ligne de stock : '+key);
+   save();toast(sizeLabel(key)+' ajoutée ✓'+(made?' · '+made+' produit(s) « Recharge '+taille+' » créé(s)':'')+' · visible dans Stock');render();return true;
+  }});
+ szTailleChange();
+}
+function szTailleChange(){
+ const t=val('sz_taille');const w=document.getElementById('sz_name_wrap');
+ if(w)w.style.display=(t==='__new__')?'':'none';
+ /* pré-remplit consigne / prix d'achat avec ceux d'une autre marque de la même taille */
+ if(t&&t!=='__new__'){const L=linesOf(t);if(L.length){const c=document.getElementById('sz_cons'),a=document.getElementById('sz_pa');if(c&&!c.value)c.value=DB.settings.consignes[L[0]]||'';if(a&&!a.value)a.value=prixAchatOf(L[0])||''}}
+ /* la création auto du produit « Recharge … » n'a de sens que si un magasin ne l'a pas encore pour cette taille */
+ const pw=document.getElementById('sz_prod_wrap');
+ if(pw){const missing=(t==='__new__')?gazActs():gazActs().filter(function(a){return !prodsOf(a.id).some(function(p){return p.kind==='recharge'&&p.size===t})});pw.style.display=missing.length?'':'none';const cb=document.getElementById('sz_mkprod');if(cb)cb.checked=missing.length>0}
+ if(t==='__new__'){const el=document.getElementById('sz_name');if(el&&typeof el.focus==='function')el.focus()}
+}
 function stockOf(act,size){if(!DB.stockGaz[act])DB.stockGaz[act]={};if(!DB.stockGaz[act][size])DB.stockGaz[act][size]={pleines:0,vides:0,cons:0};return DB.stockGaz[act][size]}
 function applyEf(eff,mult){if(!eff)return;const st=stockOf(eff.act,eff.size);st.pleines+=eff.p*mult;st.vides+=eff.v*mult;st.cons+=eff.c*mult}
 function clampStock(act,size){const st=DB.stockGaz[act]&&DB.stockGaz[act][size];if(!st)return;st.pleines=Math.max(0,st.pleines);st.vides=Math.max(0,st.vides);st.cons=Math.max(0,st.cons)}
@@ -431,9 +601,9 @@ function stats(a,b){
   if(r.by[s.act])r.by[s.act].v+=s.total;
   const p=prodById(s.prod);
   const kind=(p&&p.kind)||s.kind;
-  const sz=(p&&p.size)||(s.effects&&s.effects.size);
+  const sz=(s.effects&&s.effects.size)||(p&&p.size);
   if(sz&&(kind==='recharge'||kind==='definitive'||kind==='bouteille')){
-   const gz=(DB.settings.prixAchat||{})[sz]||0;
+   const gz=prixAchatOf(sz);
    let c=s.qty*gz;
    if(kind!=='recharge')c+=s.qty*bottleAvgCost(s.act,sz);
    r.cmv+=c;
@@ -465,11 +635,12 @@ function bottleAvgCost(act,size){
 }
 function stockValueGaz(){
  let v=0;
- gazActs().forEach(function(a){sizes().forEach(function(sz){const st=stockOf(a.id,sz);v+=st.pleines*((DB.settings.prixAchat||{})[sz]||0)+st.vides*bottleAvgCost(a.id,sz)})});
+ gazActs().forEach(function(a){sizes().forEach(function(sz){const st=stockOf(a.id,sz);v+=st.pleines*(prixAchatOf(sz))+st.vides*bottleAvgCost(a.id,sz)})});
  return Math.round(v);
 }
 function salePriceForSize(act,size){
- const p=DB.products.find(function(x){return x.act===act&&x.size===size&&x.kind==='recharge'})||DB.products.find(function(x){return x.act===act&&x.size===size});
+ const t=tailleOf(size);
+ const p=DB.products.find(function(x){return x.act===act&&(x.size===t||x.size===size)&&x.kind==='recharge'})||DB.products.find(function(x){return x.act===act&&(x.size===t||x.size===size)});
  return p?p.price:0;
 }
 function stockValueSale(){
@@ -479,7 +650,7 @@ function stockValueSale(){
 }
 function stockRecap(act,size){
  const st=stockOf(act,size);
- const pa=(DB.settings.prixAchat||{})[size]||0;
+ const pa=prixAchatOf(size);
  const avg=bottleAvgCost(act,size);
  const va=Math.round(st.pleines*pa+st.vides*avg);
  const vv=Math.round(st.pleines*salePriceForSize(act,size)+st.vides*avg);
@@ -591,7 +762,7 @@ function viewVentes(){
   '<div class="grid2"><div class="field"><label>Magasin / activité</label><select class="inp" id="vq_act" onchange="state.vActAll=this.value;render()"><option value="">— choisir —</option>'+
    acts.map(function(a){return '<option value="'+a.id+'"'+(a.id===qAct?' selected':'')+'>'+esc(a.name)+'</option>'}).join('')+'</select></div>'+
   '<div class="field"><label>Produit</label><select class="inp" id="vq_prod"><option value="">— choisir —</option>'+
-   qProds.map(function(p){var stTxt='';if(p.size&&actById(p.act)){var st=stockOf(p.act,p.size);stTxt=' · stock : '+st.pleines+' pleine(s)'+(st.pleines<=0?' ⚠️ épuisé':'')}return '<option value="'+p.id+'">'+esc(p.name)+' — '+money(p.price)+(p.size?' ('+p.size+')':'')+stTxt+'</option>'}).join('')+'</select></div></div>'+
+   qProds.map(function(p){var stTxt='';if(p.size&&actById(p.act)){var L=prodLines(p);var st=prodStock(p.act,p);stTxt=' · stock : '+st.pleines+' pleine(s)'+(st.pleines<=0?' ⚠️ épuisé':'')+(L.length>1?' ('+L.map(function(k){return (marqueOf(k)||'sans marque')+' '+stockOf(p.act,k).pleines}).join(' · ')+')':'')}return '<option value="'+p.id+'">'+esc(p.name)+' — '+money(p.price)+(p.size?' ('+esc(p.size)+')':'')+esc(stTxt)+'</option>'}).join('')+'</select></div></div>'+
   '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-pri" style="flex:2" onclick="doQuickSale()">➡️ Vendre</button><button class="btn" style="flex:1" onclick="openFreeSale(qAct||\'\')">✏️ Vente libre</button></div>'+
  '</div>'+
  '<h2 class="sec" style="margin-top:14px">Historique'+(list.length?' — '+list.length+' vente(s) · '+money(tot):'')+'</h2><div class="card">'+(items||'<div class="empty"><span class="e">🧺</span>Aucune vente enregistrée ici pour l\'instant.</div>')+
@@ -629,21 +800,27 @@ function viewDepenses(){
 function viewStock(){
  const gz=gazActs().map(function(a){
   let tot=0,vaTot=0,vvTot=0;
-  sizes().forEach(function(sz){const st=stockOf(a.id,sz);tot+=st.pleines+st.vides;vaTot+=st.pleines*((DB.settings.prixAchat||{})[sz]||0)+st.vides*bottleAvgCost(a.id,sz);vvTot+=st.pleines*salePriceForSize(a.id,sz)+st.vides*bottleAvgCost(a.id,sz)});
+  sizes().forEach(function(sz){const st=stockOf(a.id,sz);tot+=st.pleines+st.vides;vaTot+=st.pleines*(prixAchatOf(sz))+st.vides*bottleAvgCost(a.id,sz);vvTot+=st.pleines*salePriceForSize(a.id,sz)+st.vides*bottleAvgCost(a.id,sz)});
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:15px">⛽ '+esc(a.name)+'</b></div>'+
    '<div class="tblwrap"><table class="tbl"><tr><th>Taille</th><th style="text-align:center">Pleines</th><th style="text-align:center">Vides</th><th style="text-align:center">Total</th><th></th></tr>'+
-   sizes().map(function(sz){const st=stockOf(a.id,sz);const low=st.pleines<DB.settings.seuilPleines;const high=st.vides>DB.settings.seuilVides;
-    return '<tr><td><b>'+sz+'</b></td>'+
-     '<td style="text-align:center;font-weight:800;color:'+(low?'var(--amb)':'inherit')+'">'+st.pleines+'</td>'+
-     '<td style="text-align:center;font-weight:800;color:'+(high?'var(--red)':'inherit')+'">'+st.vides+'</td>'+
-     '<td style="text-align:center"><b>'+(st.pleines+st.vides)+'</b></td>'+
-     '<td style="text-align:right"><button class="btn btn-sm btn-ghost" onclick="openAjustStock(\''+a.id+'\',\''+sz+'\')">Ajuster</button></td></tr>';
+   tailles().map(function(t){
+    const L=linesOf(t);
+    const rows=L.map(function(sz){const st=stockOf(a.id,sz);const low=st.pleines<DB.settings.seuilPleines;const high=st.vides>DB.settings.seuilVides;const m=marqueOf(sz);
+     return '<tr><td><b>'+esc(t)+'</b>'+(m?'<br><span class="pill" style="font-size:11px">'+esc(m)+'</span>':'')+'</td>'+
+      '<td style="text-align:center;font-weight:800;color:'+(low?'var(--amb)':'inherit')+'">'+st.pleines+'</td>'+
+      '<td style="text-align:center;font-weight:800;color:'+(high?'var(--red)':'inherit')+'">'+st.vides+'</td>'+
+      '<td style="text-align:center"><b>'+(st.pleines+st.vides)+'</b></td>'+
+      '<td style="text-align:right"><button class="btn btn-sm btn-ghost" onclick="openAjustStock(\''+a.id+'\',\''+esc(sz)+'\')">Ajuster</button></td></tr>';
+    }).join('');
+    if(L.length<=1)return rows;
+    let tp=0,tv=0;L.forEach(function(sz){const st=stockOf(a.id,sz);tp+=st.pleines;tv+=st.vides});
+    return rows+'<tr style="background:#f0fdfa"><td class="small-txt">Σ <b>'+esc(t)+'</b> toutes marques</td><td style="text-align:center;font-weight:800">'+tp+'</td><td style="text-align:center;font-weight:800">'+tv+'</td><td style="text-align:center"><b>'+(tp+tv)+'</b></td><td></td></tr>';
    }).join('')+'</table></div>'+
    '<div class="row" style="margin-top:8px;border-top:2px solid var(--ink)"><span class="small-txt">📦 Total bouteilles</span><b>'+tot+'</b></div>'+
    '<div class="small-txt" style="margin-top:4px;background:#f0fdfa;border-radius:8px;padding:6px 8px">💰 Valeur du stock : achat <b>'+money(vaTot)+'</b> · vente potentielle <b>'+money(vvTot)+'</b>'+(vvTot>vaTot?' · marge potentielle <b>'+money(vvTot-vaTot)+'</b>':'')+'</div>'+
    '<div class="small-txt" style="margin-top:8px">💡 <b>Échange client (recharge)</b> : le client apporte sa vide et repart avec une pleine → pleines −1, vides +1, <b>total inchangé</b>. <b>Vente définitive</b> : le client achète la bouteille → total −1. Le total ne change que par : consignation fournisseur (+), restitution (−), achat de vides (+), vente définitive (−), perte/casse (−).</div>'+
    '<div class="chips" style="margin-bottom:0"><button class="btn btn-sm" onclick="openChargement(\''+a.id+'\')">🛢 Chargement</button><button class="btn btn-sm" onclick="openAchatVides(\''+a.id+'\')">🧺 Achat bouteilles vides</button><button class="btn btn-sm" onclick="openPerte(\''+a.id+'\')">🔥 Perte / casse</button></div></div>';
- }).join('');
+ }).join('')+(gazActs().length?'<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b>📏 Tailles & marques de bouteilles</b><div class="small-txt">'+esc(sizes().map(sizeLabel).join(' · '))+'<br>Une taille ou une marque (Oryx, Total…) manque ? Ajoute-la ici, ou modifie-la dans Réglages.</div></div><div style="display:flex;flex-direction:column;gap:6px"><button class="btn btn-sm btn-pri" style="white-space:nowrap" onclick="openAddSize()">➕ Ajouter</button><button class="btn btn-sm btn-ghost" style="white-space:nowrap" onclick="goPage(\'reglages\')">⚙️ Réglages</button></div></div>':'');
  const fd=foodActs().map(function(a){
   const items=DB.stockFood[a.id]||[];
   return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:15px">🍗 '+esc(a.name)+'</b></div>'+
@@ -699,7 +876,7 @@ function openCautFourn(type){
   '<div class="field"><label>Date ★</label><input class="inp" id="cf_date" type="date" value="'+dISO()+'"></div></div>'+
   '<div class="hint" style="margin-bottom:4px">📦 <b>Les bouteilles aussi</b> : '+(type==='in'?'une consignation versée augmente le nombre de bouteilles en main (souvent des vides).':'une restitution diminue le nombre de bouteilles en main (souvent des vides rendues).')+' Remplis la quantité si des bouteilles ont changé de main.</div>'+
   '<div class="grid2"><div class="field"><label>Activité (magasin de gaz)</label><select class="inp" id="cf_act" onchange="calcCautConseq()">'+(acts.length?acts.map(function(a){return '<option value="'+a.id+'">'+esc(a.name)+'</option>'}).join(''):'<option value="">— aucun magasin de gaz —</option>')+'</select></div>'+
-  '<div class="field"><label>Taille</label><select class="inp" id="cf_size" onchange="calcCautConseq()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="field"><label>Taille</label><select class="inp" id="cf_size" onchange="calcCautConseq()">'+sizes().map(function(sz){return '<option value="'+esc(sz)+'">'+esc(sizeLabel(sz))+'</option>'}).join('')+'</select></div>'+
   '<div class="field"><label>Nombre de bouteilles</label><input class="inp" id="cf_qty" type="text" inputmode="decimal" placeholder="0 = pas de changement de stock" oninput="calcCautConseq()"></div>'+
   '<div class="field"><label>État des bouteilles</label><select class="inp" id="cf_state" onchange="calcCautConseq()"><option value="vides"'+(type==='in'?' selected':'')+'>Vides</option><option value="pleines">Pleines</option></select></div></div>'+
   '<div id="cf_conseq"></div>'+
@@ -762,7 +939,7 @@ function viewMouvements(){
  const acts=gazActs();
  return viewSub('📦 Mouvements de stock',
   '<div class="chips">'+[['all','Toutes']].concat(acts.map(function(a){return [a.id,a.name]})).map(function(x){return '<button class="chip'+(state.mAct===x[0]?' on':'')+'" onclick="state.mAct=\''+x[0]+'\';state.mLimit=100;render()">'+esc(x[1])+'</button>'}).join('')+'</div>'+
-  '<div class="chips">'+[['all','Toutes tailles']].concat(sizes().map(function(sz){return [sz,sz]})).map(function(x){return '<button class="chip'+(state.mSize===x[0]?' on':'')+'" onclick="state.mSize=\''+x[0]+'\';state.mLimit=100;render()">'+esc(x[1])+'</button>'}).join('')+'</div>'+
+  '<div class="chips">'+[['all','Toutes tailles']].concat(sizes().map(function(sz){return [sz,sizeLabel(sz)]})).map(function(x){return '<button class="chip'+(state.mSize===x[0]?' on':'')+'" onclick="state.mSize=\''+x[0]+'\';state.mLimit=100;render()">'+esc(x[1])+'</button>'}).join('')+'</div>'+
   periodPicker('m',[['all','Tout'],['today',"Aujourd'hui"],['week','Cette semaine'],['month','Ce mois']])+
   '<div class="small-txt" style="margin:4px 0 8px">'+list.length+' mouvement(s) · Colonnes : Δ = variation (P = pleines, V = vides) puis <b>le stock restant après</b> le mouvement.</div>'+
   '<div class="card"><div class="tblwrap"><table class="tbl"><tr><th>Mouvement</th><th>Activité</th><th>Taille</th><th style="text-align:right">ΔP</th><th style="text-align:right">ΔV</th><th style="text-align:right">Reste (P·V)</th><th>Détail</th></tr>'+
@@ -778,7 +955,7 @@ function openPerte(act){
  curPerteAct=act;
  openModal('🔥 Perte / casse — '+esc(actName(act)),
   '<div class="hint">Enregistre ici les bouteilles <b>perdues, cassées ou volées</b> : elles sortent du stock définitivement.</div>'+
-  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="p_size" onchange="calcPerteConseq()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="p_size" onchange="calcPerteConseq()">'+sizes().map(function(sz){return '<option value="'+esc(sz)+'">'+esc(sizeLabel(sz))+'</option>'}).join('')+'</select></div>'+
   '<div class="field"><label>Quantité ★</label><input class="inp" id="p_q" type="text" inputmode="decimal" value="1" oninput="calcPerteConseq()"></div>'+
   '<div class="field"><label>État</label><select class="inp" id="p_state" onchange="calcPerteConseq()"><option value="pleines">Pleines</option><option value="vides">Vides</option></select></div></div>'+
   '<div id="p_conseq"></div>'+
@@ -845,10 +1022,30 @@ function viewReglages(){
   return '<div class="row"><div style="flex:1;min-width:0"><input class="inp" style="padding:8px 10px;font-size:14px" value="'+esc(a.name)+'" onchange="renAct(\''+a.id+'\',this.value)"><div class="small-txt" style="margin-top:2px">'+typeLabel+'</div></div>'+(a.type!=='gen'?'<button class="del" onclick="delAct(\''+a.id+'\')">🗑</button>':'')+'</div>';
  }).join('');
  const prodRows=prods.map(function(p){
-  return '<div class="row"><div style="flex:1;min-width:0"><input class="inp" style="padding:8px 10px;font-size:14px" value="'+esc(p.name)+'" onchange="renProd(\''+p.id+'\',this.value)"><div class="small-txt" style="margin-top:2px">'+kindLabel(p.kind)+(p.size?' · taille '+p.size:'')+(p.deposit?' · consigne '+money(p.deposit):'')+'</div></div><input class="inp" style="width:110px;padding:8px 10px;font-size:14px" type="text" inputmode="decimal" value="'+p.price+'" onchange="setPrice(\''+p.id+'\',this.value)"><button class="del" onclick="delProd(\''+p.id+'\')">🗑</button></div>';
+  const hasSize=!!(p.size||p.kind==='recharge'||p.kind==='definitive'||p.kind==='bouteille');
+  const T=tailles();
+  const nL=p.size?linesOf(p.size).length:0;
+  const sizeSel=hasSize?'<div class="small-txt" style="margin-top:4px;display:flex;align-items:center;gap:6px"><span style="white-space:nowrap">📏 Taille :</span><select class="inp" style="flex:1;min-width:0;padding:4px 8px;font-size:13px" onchange="setProdSize(\''+p.id+'\',this.value)">'+T.map(function(t){return '<option value="'+esc(t)+'"'+(t===p.size?' selected':'')+'>'+esc(t)+'</option>'}).join('')+(p.size&&T.indexOf(p.size)<0?'<option value="'+esc(p.size)+'" selected>'+esc(p.size)+' (⚠️ absente du stock)</option>':'')+'<option value="__new__">➕ Nouvelle taille…</option></select></div>'+(nL>1?'<div class="small-txt" style="margin-top:2px">🏷 '+nL+' marques pour cette taille : '+esc(linesOf(p.size).map(function(k){return marqueOf(k)||'sans marque'}).join(', '))+' → la marque est demandée à la vente.</div>':''):'';
+  return '<div class="row"><div style="flex:1;min-width:0"><input class="inp" style="padding:8px 10px;font-size:14px" value="'+esc(p.name)+'" onchange="renProd(\''+p.id+'\',this.value)"><div class="small-txt" style="margin-top:2px">'+kindLabel(p.kind)+(p.deposit?' · consigne '+money(p.deposit):'')+'</div>'+sizeSel+'</div><input class="inp" style="width:110px;padding:8px 10px;font-size:14px" type="text" inputmode="decimal" value="'+p.price+'" onchange="setPrice(\''+p.id+'\',this.value)"><button class="del" onclick="delProd(\''+p.id+'\')">🗑</button></div>';
  }).join('');
  const cats=DB.cats.map(function(c,i){return '<span class="pill" style="font-size:12.5px;padding:6px 10px;display:inline-flex;gap:6px;align-items:center;margin:0 6px 6px 0">'+esc(c)+'<button class="del" style="color:#94a3b8" onclick="delCat('+i+')">✕</button></span>'}).join('');
- const cons=Object.keys(DB.settings.consignes).map(function(sz){return '<div class="grid2"><div class="field"><label>Consigne bouteille '+sz+' (F)</label><input class="inp" type="text" inputmode="decimal" id="sc_'+sz+'" value="'+DB.settings.consignes[sz]+'"></div></div>'}).join('');
+ const allKeys=sizes();
+ const sizeRows=tailles().map(function(t,ti){
+  const L=linesOf(t);const tu=tailleUsage(t);
+  const lines=L.map(function(sz){
+   const i=allKeys.indexOf(sz);const u=sizeUsage(sz);const m=marqueOf(sz);
+   return '<div style="border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px;background:#f8fafc">'+
+    '<div class="field" style="margin-bottom:0"><label>🏷 Marque / fournisseur (Oryx, Total…)</label><div style="display:flex;gap:8px;align-items:center"><input class="inp" style="flex:1;min-width:0;padding:7px 10px;font-size:14px;font-weight:700" value="'+esc(m)+'" placeholder="(sans marque)" list="marques-list-set" maxlength="20" onchange="renameMarqueAt('+i+',this.value)">'+(L.length>1?'<button class="del" title="Supprimer cette marque" onclick="delSizeAt('+i+')">🗑</button>':'')+'</div></div>'+
+    '<div class="grid2" style="margin-top:6px"><div class="field"><label>Consigne bouteille (F)</label><input class="inp" type="text" inputmode="decimal" id="sc_'+esc(sz)+'" value="'+DB.settings.consignes[sz]+'"></div>'+
+    '<div class="field"><label>Prix d\'achat au dépôt (F)</label><input class="inp" type="text" inputmode="decimal" id="pa_'+esc(sz)+'" value="'+(DB.settings.prixAchat&&DB.settings.prixAchat[sz]!==undefined?DB.settings.prixAchat[sz]:'')+'"></div></div>'+
+    '<div class="small-txt" style="margin-top:2px">📦 En stock : <b>'+u.pleines+'</b> pleine(s) · <b>'+u.vides+'</b> vide(s)</div></div>';
+  }).join('');
+  return '<div style="border:2px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff">'+
+   '<div style="display:flex;gap:8px;align-items:center"><span class="small-txt" style="min-width:44px;font-weight:700">Taille</span><input class="inp" style="flex:1;font-weight:800;padding:8px 10px" value="'+esc(t)+'" maxlength="14" onchange="renameTailleAt('+ti+',this.value)"><button class="del" title="Supprimer cette taille" onclick="delTailleAt('+ti+')">🗑</button></div>'+
+   '<div class="small-txt" style="margin-top:4px">Utilisée par <b>'+tu.prods.length+'</b> produit(s) · '+(L.length>1?'<b>'+L.length+'</b> marques':'1 ligne')+' · total <b>'+tu.pleines+'</b> pleine(s), <b>'+tu.vides+'</b> vide(s)</div>'+
+   lines+
+   '<button class="btn btn-sm btn-ghost btn-block" style="margin-top:8px" onclick="openAddSize(\''+esc(t)+'\')">➕ Ajouter une marque / un fournisseur pour '+esc(t)+'</button></div>';
+ }).join('')+'<datalist id="marques-list-set">'+marques().concat(['Oryx','Total','Petro Ivoire','Shell','Corlay']).filter(function(x,i,a){return a.indexOf(x)===i}).map(function(m){return '<option value="'+esc(m)+'">'}).join('')+'</datalist>';
  return viewSub('⚙️ Réglages',
   '<div class="card"><div class="field"><label>Nom de la boutique</label><input class="inp" id="sn" value="'+esc(DB.settings.businessName)+'"></div><button class="btn btn-sm btn-ghost" onclick="saveName()">Enregistrer le nom</button></div>'+
   '<h2 class="sec">Activités</h2><div class="card">'+acts+'<button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="openAddActivity()">➕ Ajouter une activité</button></div>'+
@@ -856,10 +1053,13 @@ function viewReglages(){
   (prods.length?'<div style="margin-top:8px">'+prodRows+'</div>':'<div class="empty" style="padding:14px"><span class="e">🏷</span>Aucun produit pour cette activité.</div>')+
   '<button class="btn btn-sm btn-ghost btn-block" style="margin-top:10px" onclick="openAddProduct(\''+(setAct||'')+'\')">➕ Ajouter un produit</button></div>'+
   '<h2 class="sec">Catégories de dépenses</h2><div class="card"><div>'+cats+'</div><div style="display:flex;gap:8px;margin-top:8px"><input class="inp" id="nc" placeholder="Nouvelle catégorie…" style="flex:1"><button class="btn btn-sm btn-ghost" onclick="addCat()">Ajouter</button></div></div>'+
-  '<h2 class="sec">Stock & consignes</h2><div class="card"><div class="grid2"><div class="field"><label>Alerte pleines si moins de…</label><input class="inp" type="text" inputmode="decimal" id="sp2" value="'+DB.settings.seuilPleines+'"></div><div class="field"><label>Alerte vides si plus de…</label><input class="inp" type="text" inputmode="decimal" id="sv2" value="'+DB.settings.seuilVides+'"></div></div><div style="margin-top:10px">'+cons+'</div>'+
-  '<div class="small-txt" style="margin:8px 0 4px"><b>Prix d\'achat au dépôt (par bouteille)</b> — utilisé pour remplir automatiquement le montant des chargements :</div><div class="grid2">'+
-  sizes().map(function(sz){return '<div class="field"><label>'+sz+' (F)</label><input class="inp" type="text" inputmode="decimal" id="pa_'+sz+'" value="'+(DB.settings.prixAchat&&DB.settings.prixAchat[sz]!==undefined?DB.settings.prixAchat[sz]:'')+'"></div>'}).join('')+'</div>'+
-  '<button class="btn btn-sm btn-ghost" onclick="saveStockSettings()">Enregistrer</button></div>'+
+  '<h2 class="sec">Tailles de bouteilles & stock</h2><div class="card">'+
+  '<div class="hint" style="margin-bottom:8px">Le stock de gaz se compte <b>par taille de bouteille</b> et, si tu veux, <b>par marque / fournisseur</b> (Oryx, Total, Petro Ivoire…). Chaque ligne apparaît dans 📦 <b>Stock</b> et dans les 🛢 chargements. Un produit gaz est rattaché à une <b>taille</b> : s\'il y a plusieurs marques, l\'application demande laquelle au moment de la vente. Tu peux <b>renommer</b> (tout suit : stock, produits, historique), <b>ajouter</b> ou <b>supprimer</b> (si plus utilisé).</div>'+
+  sizeRows+
+  '<button class="btn btn-sm btn-ghost btn-block" onclick="openAddSize()">➕ Ajouter une taille de bouteille</button>'+
+  '<div class="small-txt" style="margin:12px 0 4px"><b>Alertes de stock</b></div><div class="grid2"><div class="field"><label>Alerte pleines si moins de…</label><input class="inp" type="text" inputmode="decimal" id="sp2" value="'+DB.settings.seuilPleines+'"></div><div class="field"><label>Alerte vides si plus de…</label><input class="inp" type="text" inputmode="decimal" id="sv2" value="'+DB.settings.seuilVides+'"></div></div>'+
+  '<div class="small-txt" style="margin:4px 0 8px">Le <b>prix d\'achat au dépôt</b> sert à remplir automatiquement le montant des chargements et à calculer la valeur du stock.</div>'+
+  '<button class="btn btn-sm btn-pri btn-block" onclick="saveStockSettings()">💾 Enregistrer consignes, prix d\'achat & alertes</button></div>'+
   '<h2 class="sec">Sécurité</h2><div class="card"><b>🔒 Code d\'accès</b><div class="hint" style="margin:6px 0 10px">Le code verrouille l\'application sur cet appareil. Choisis le même code sur tous les appareils pour ne pas t\'embrouiller.</div><div style="display:flex;gap:8px">'+(pinIsSet()?'<button class="btn btn-sm" style="flex:1" onclick="openChangePin()">Changer le code</button>'+
   '<button class="btn btn-sm" style="flex:1;margin-left:8px" onclick="togglePinEveryOpen()">À chaque ouverture : '+(DB.settings.pinEveryOpen!==false?'OUI':'NON')+'</button><button class="btn btn-sm btn-danger" style="flex:1" onclick="disablePin()">Désactiver</button>':'<button class="btn btn-sm btn-pri btn-block" onclick="openCreatePin()">Créer un code d\'accès</button>')+'</div></div>'+'<h2 class="sec">À propos</h2><div class="card" style="text-align:center"><div style="font-weight:800;font-size:16px">MISS KOUYATE SHOP</div><div class="small-txt" style="margin-top:4px">Application de gestion de boutique · v1.0</div><div class="small-txt" style="margin-top:8px">Conception & développement : <b>DOREGO SERVICES</b><br>📞 +225 0502657392</div><button class="btn btn-sm btn-ghost" style="margin-top:10px" onclick="goPage(\'mot\')">💌 Lire le petit mot</button></div>'+
   '<h2 class="sec">Données</h2><div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn btn-sm" onclick="goPage(\'sauvegarde\')">💾 Sauvegarde & restauration</button><button class="btn btn-sm" onclick="confirmModal(\'Charger l\'exemple ?\',\'Les données actuelles seront remplacées par un exemple de 15 jours (elles seront sauvegardées automatiquement).\',function(){loadDemo()},\'Oui, charger\')">🧪 Voir un exemple</button><button class="btn btn-sm btn-danger" onclick="confirmModal(\'Tout effacer ?\',\'Toutes les ventes, dépenses et stocks seront supprimés définitivement. Pense à faire une sauvegarde avant !\',function(){wipeAll()},\'Oui, tout effacer\')">🗑 Tout effacer</button></div>');
@@ -982,7 +1182,7 @@ function viewGuide(){
   sec('1. Au premier démarrage','Va dans <b>Menu → Réglages</b> : mets le nom de la boutique, vérifie les activités, les produits et <b>surtout les prix</b> (les prix proposés sont des exemples à modifier).')+
   sec('2. Les ventes','Onglet <b>Ventes</b> → choisis l\'activité → tape sur le produit pour l\'enregistrer. Choisis le paiement : 💵 Espèces, 📱 Mobile Money ou 🤝 Crédit (avec le nom du client).')+
   sec('3. Les dépenses','Onglet <b>Dépenses</b> → ➕ Nouvelle dépense → choisis l\'activité, la catégorie (achat gaz, poisson, transport…) et le montant.')+
-  sec('4. Le stock de gaz','Onglet <b>Stock</b>. Vente de recharge = le client apporte sa bouteille vide et repart avec une pleine : automatiquement pleines −1, vides +1, total inchangé. Le total de bouteilles en main ne change qu\'avec : consignations (+), restitutions (−), achats de vides (+), ventes définitives (−) et pertes (−). <b>Vente définitive</b> = le client achète la bouteille (total −1). Au 🛢 <b>Chargement</b>, l\'application compare toute seule pleines reçues et vides rendues : la différence = nouvelle consignation ou restitution (le nom du fournisseur est enregistré), et la dépense est créée automatiquement avec le prix d\'achat. 🔥 <b>Perte</b> pour les bouteilles cassées ou volées. Et dans <b>Menu → 📦 Mouvements de stock</b>, tout l\'historique est visible. Au tout début, utilise <b>Ajuster</b> pour saisir ton stock réel.')+
+  sec('4. Le stock de gaz','Onglet <b>Stock</b>. Vente de recharge = le client apporte sa bouteille vide et repart avec une pleine : automatiquement pleines −1, vides +1, total inchangé. Le total de bouteilles en main ne change qu\'avec : consignations (+), restitutions (−), achats de vides (+), ventes définitives (−) et pertes (−). <b>Vente définitive</b> = le client achète la bouteille (total −1). Au 🛢 <b>Chargement</b>, l\'application compare toute seule pleines reçues et vides rendues : la différence = nouvelle consignation ou restitution (le nom du fournisseur est enregistré), et la dépense est créée automatiquement avec le prix d\'achat. 🔥 <b>Perte</b> pour les bouteilles cassées ou volées. Et dans <b>Menu → 📦 Mouvements de stock</b>, tout l\'historique est visible. Au tout début, utilise <b>Ajuster</b> pour saisir ton stock réel. 📏 <b>Les tailles de bouteilles</b> (B6, B12.5, B15, B25…) et leurs <b>marques / fournisseurs</b> (Oryx, Total, Petro Ivoire…) se gèrent dans <b>Réglages → Tailles de bouteilles</b> : ajoute, renomme ou supprime, et le Stock suit automatiquement. Un produit gaz (recharge / vente définitive) est rattaché à une <b>taille</b> ; si cette taille existe en plusieurs marques, l\'application te demande la marque au moment de la vente et c\'est cette ligne qui bouge dans le stock.')+
   sec('5. Les crédits','Dans <b>Menu → Crédits clients</b> : tu vois qui doit combien. Utilise <b>💵 Encaisser</b> quand le client paie.')+
   sec('6. Les consignations fournisseurs','Dans <b>Menu → 🏭 Consignations fournisseurs</b> : note l\'argent que tu as <b>versé</b> aux dépôts comme consignation pour leurs bouteilles, et les <b>remboursements</b> quand tu rends des bouteilles. Ce n\'est pas une dépense : c\'est de l\'argent immobilisé que tu récupéreras.')+
   sec('7. Voir ses bénéfices','L\'<b>Accueil</b> montre ventes, dépenses, bénéfice (aujourd\'hui, semaine, mois). <b>Menu → Rapports</b> permet de choisir n\'importe quelle période et d\'imprimer.')+
@@ -1054,6 +1254,7 @@ function openSale(pid){
   '<div class="grid2"><div class="field"><label>Quantité ★</label><div class="qty-ctl"><button type="button" onclick="stepQ(\'s_qty\',-1)">−</button><input class="inp" id="s_qty" type="text" inputmode="decimal" value="1" oninput="calcSaleProd()"><button type="button" onclick="stepQ(\'s_qty\',1)">+</button></div></div>'+
   '<div class="field"><label>Prix unitaire (F) ★</label><input class="inp" id="s_price" type="text" inputmode="decimal" value="'+p.price+'" oninput="calcSaleProd()"></div></div>'+
   '<div class="field"><label>Total</label><div style="font-size:20px;font-weight:800;color:var(--tea)" id="s_total">'+money(p.price)+'</div></div>'+
+  saleLineSelectHtml(p)+
   '<div id="s_conseq"></div>'+
   '<div class="field"><label>Paiement</label><div class="seg"><button type="button" class="on" id="payEsp" onclick="setPay(\'esp\')">💵 Espèces</button><button type="button" id="payMm" onclick="setPay(\'mm\')">📱 Mobile Money</button><button type="button" id="payCr" onclick="setPay(\'credit\')">🤝 Crédit</button></div></div>'+
   '<div class="field" id="clientWrap" style="display:none"><label>Nom du client</label><input class="inp" id="s_client" list="clients-list" placeholder="Ex : Aya K."><datalist id="clients-list">'+clientNames().map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist></div>'+
@@ -1063,6 +1264,21 @@ function openSale(pid){
  calcSaleConseq();
  curPay='esp';
 }
+/* Ligne de stock (taille + marque) utilisée par la vente en cours */
+function saleLineKey(p){
+ const L=prodLines(p);if(!L.length)return null;
+ const sel=document.getElementById('s_line');
+ if(sel&&L.indexOf(sel.value)>=0)return sel.value;
+ return L[0];
+}
+/* Si la taille du produit existe en plusieurs marques / fournisseurs → on demande laquelle (par défaut : la plus fournie en pleines) */
+function saleLineSelectHtml(p){
+ if(!p||!p.size||!(p.kind==='recharge'||p.kind==='definitive'||p.kind==='bouteille'))return '';
+ const L=prodLines(p);
+ if(L.length<=1)return '';
+ let best=L[0];L.forEach(function(k){if(stockOf(p.act,k).pleines>stockOf(p.act,best).pleines)best=k});
+ return '<div class="field"><label>Marque / fournisseur de la bouteille ★</label><select class="inp" id="s_line" onchange="calcSaleConseq()">'+L.map(function(k){const st=stockOf(p.act,k);return '<option value="'+esc(k)+'"'+(k===best?' selected':'')+'>'+esc(marqueOf(k)||'Sans marque')+' — '+st.pleines+' pleine(s) · '+st.vides+' vide(s)'+(st.pleines<=0?' ⚠️ épuisé':'')+'</option>'}).join('')+'</select><div class="small-txt" style="margin-top:3px">La bouteille vendue (et la vide reprise) sont comptées sur cette marque.</div></div>';
+}
 function calcSaleProd(){const t=$('#s_total');if(t)t.textContent=money(num(val('s_qty'))*num(val('s_price')));calcSaleConseq()}
 /* Aperçu de conséquence AVANT d'enregistrer une vente */
 function calcSaleConseq(){
@@ -1070,22 +1286,23 @@ function calcSaleConseq(){
  const p=prodById(curSalePid);if(!p){el.innerHTML='';return}
  const q=Math.max(0,Math.round(num(val('s_qty'))));
  if(q<=0){el.innerHTML='';return}
- const st=(p.size&&actById(p.act))?stockOf(p.act,p.size):null;
+ const lineKey=(p.size&&actById(p.act))?saleLineKey(p):null;
+ const st=lineKey?stockOf(p.act,lineKey):null;
  if(p.kind==='recharge'&&st){
   const nP=Math.max(0,st.pleines-q);
   const warn=st.pleines<q?'<div class="small-txt" style="color:var(--red);margin-top:4px">⚠️ Attention : pas assez de pleines en stock ('+st.pleines+' seulement).</div>':'';
-  el.innerHTML='<div class="alert ok" style="margin-top:8px">📦 <b>Conséquence (échange client) :</b> le client apporte sa bouteille vide et repart avec une pleine.<br><span class="small-txt">Pleines : '+st.pleines+' → '+nP+' · Vides : '+st.vides+' → '+(st.vides+q)+' · <b>Total bouteilles en main : inchangé</b> ('+(st.pleines+st.vides+st.cons)+').</span>'+warn+'</div>';
+  el.innerHTML='<div class="alert ok" style="margin-top:8px">📦 <b>Conséquence (échange client'+(marqueOf(lineKey)?' · '+esc(sizeLabel(lineKey)):'')+') :</b> le client apporte sa bouteille vide et repart avec une pleine.<br><span class="small-txt">Pleines : '+st.pleines+' → '+nP+' · Vides : '+st.vides+' → '+(st.vides+q)+' · <b>Total bouteilles en main : inchangé</b> ('+(st.pleines+st.vides+st.cons)+').</span>'+warn+'</div>';
  }else if(p.kind==='definitive'&&st){
   const nP2=Math.max(0,st.pleines-q);
   const warn2=st.pleines<q?'<div class="small-txt" style="color:var(--red);margin-top:4px">⚠️ Attention : pas assez de pleines en stock ('+st.pleines+' seulement).</div>':'';
-  el.innerHTML='<div class="alert" style="margin-top:8px">📦 <b>Conséquence (vente définitive) :</b> le client achète la bouteille, elle sort <b>définitivement</b> du stock.<br><span class="small-txt">Pleines : '+st.pleines+' → '+nP2+' · <b>Total en main : −'+q+'</b> ('+(st.pleines+st.vides+st.cons)+' → '+(nP2+st.vides+st.cons)+').</span>'+warn2+'</div>';
+  el.innerHTML='<div class="alert" style="margin-top:8px">📦 <b>Conséquence (vente définitive'+(marqueOf(lineKey)?' · '+esc(sizeLabel(lineKey)):'')+') :</b> le client achète la bouteille, elle sort <b>définitivement</b> du stock.<br><span class="small-txt">Pleines : '+st.pleines+' → '+nP2+' · <b>Total en main : −'+q+'</b> ('+(st.pleines+st.vides+st.cons)+' → '+(nP2+st.vides+st.cons)+').</span>'+warn2+'</div>';
  }else{
   el.innerHTML='<div class="alert ok" style="margin-top:8px">📦 Aucun effet sur le stock de bouteilles (vente simple).</div>';
  }
  if(st&&p.size&&q>0&&(p.kind==='recharge'||p.kind==='definitive'||p.kind==='bouteille')){
-  const pa=(DB.settings.prixAchat||{})[p.size]||0;
-  const avg=bottleAvgCost(p.act,p.size);
-  const sp=salePriceForSize(p.act,p.size);
+  const pa=prixAchatOf(lineKey);
+  const avg=bottleAvgCost(p.act,lineKey);
+  const sp=salePriceForSize(p.act,lineKey);
   const nP=Math.max(0,st.pleines-q);
   const nV=(p.kind==='recharge')?st.vides+q:st.vides;
   const va=Math.round(nP*pa+nV*avg),vv=Math.round(nP*sp+nV*avg);
@@ -1107,13 +1324,17 @@ function saveSale(pid){
  if(q<=0){toast('Mets une quantité');return false}
  if(curPay==='credit'&&!client){toast('Écris le nom du client (crédit)');return false}
  /* Règle : pas de stock → pas de vente (recharge ou vente de bouteille) */
+ let lineKey=null;
  if(p.size&&(p.kind==='recharge'||p.kind==='definitive'||p.kind==='bouteille')){
-  const st=stockOf(p.act,p.size);
-  if(st.pleines<q){toast('❌ Vente impossible : pas assez de stock — '+st.pleines+' bouteille(s) '+p.size+' pleine(s) en magasin.');return false}
+  lineKey=saleLineKey(p);
+  if(!lineKey){toast('❌ Aucune taille de bouteille « '+p.size+' » dans le stock — vérifie Réglages → Tailles de bouteilles.');return false}
+  const st=stockOf(p.act,lineKey);
+  if(st.pleines<q){toast('❌ Vente impossible : pas assez de stock — '+st.pleines+' bouteille(s) '+sizeLabel(lineKey)+' pleine(s) en magasin.');return false}
  }
  const s={id:uid(),ts:Date.now(),date:date,act:p.act,name:p.name,prod:p.id,qty:q,price:price,pay:curPay,client:curPay==='credit'?client:'',note:note,total:Math.round(q*price),kind:p.kind};
- if(p.kind==='recharge'&&p.size){s.effects={act:p.act,size:p.size,p:-q,v:q,c:0};applyEf(s.effects,1);addMove(p.act,p.size,'vente-recharge',-q,q,0,p.name,client||note);}
- else if(p.kind==='definitive'&&p.size){s.effects={act:p.act,size:p.size,p:-q,v:0,c:0};applyEf(s.effects,1);addMove(p.act,p.size,'vente-definitive',-q,0,0,p.name,client||note);}
+ const mLbl=lineKey&&marqueOf(lineKey)?p.name+' ('+marqueOf(lineKey)+')':p.name;
+ if(p.kind==='recharge'&&lineKey){s.effects={act:p.act,size:lineKey,p:-q,v:q,c:0};applyEf(s.effects,1);addMove(p.act,lineKey,'vente-recharge',-q,q,0,mLbl,client||note);}
+ else if(p.kind==='definitive'&&lineKey){s.effects={act:p.act,size:lineKey,p:-q,v:0,c:0};applyEf(s.effects,1);addMove(p.act,lineKey,'vente-definitive',-q,0,0,mLbl,client||note);}
  DB.sales.unshift(s);let recap='';if(s.effects&&s.effects.size)recap=' · '+stockRecap(s.effects.act,s.effects.size);save();toast('Vente enregistrée ✓'+recap);render();return true;
 }
 function delSale(id){
@@ -1157,11 +1378,11 @@ function delExpense(id){
 function openChargement(act){
  curChargAct=act;
  openModal('🛢 Chargement gaz — '+esc(actName(act)),
-  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="c_size" onchange="calcChargementDiff()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="c_size" onchange="calcChargementDiff()">'+sizes().map(function(sz){return '<option value="'+esc(sz)+'">'+esc(sizeLabel(sz))+'</option>'}).join('')+'</select></div>'+
   '<div class="field"><label>Pleines reçues</label><input class="inp" id="c_p" type="text" inputmode="decimal" value="0" oninput="calcChargementDiff()"></div>'+
   '<div class="field"><label>Vides rendues</label><input class="inp" id="c_v" type="text" inputmode="decimal" value="0" oninput="calcChargementDiff()"></div>'+
   '<div class="field"><label>Montant payé (F) ★</label><input class="inp" id="c_amt" type="text" inputmode="decimal" placeholder="0 = pas de dépense" oninput="this.dataset.touched=\'1\'"><div class="small-txt" style="margin-top:3px">🤖 Rempli automatiquement : pleines reçues × prix d\'achat (Réglages). Modifiable.</div></div></div>'+
-  '<div class="field"><label>Fournisseur (dépôt) ★</label><input class="inp" id="c_sup" placeholder="Ex : Dépôt Total" list="sup-list"><datalist id="sup-list">'+knownSuppliers().map(function(sn){return '<option value="'+esc(sn)+'">'}).join('')+'</datalist></div>'+'<div id="c_diff"></div>'+
+  '<div class="field"><label>Fournisseur (dépôt) ★</label><input class="inp" id="c_sup" placeholder="Ex : Dépôt Total" list="sup-list" oninput="this.dataset.touched=\'1\'"><datalist id="sup-list">'+knownSuppliers().map(function(sn){return '<option value="'+esc(sn)+'">'}).join('')+'</datalist></div>'+'<div id="c_diff"></div>'+
   '<div id="c_cons_wrap" style="display:none;border:1px solid #fde68a;background:#fffbeb;border-radius:10px;padding:10px 12px">'+
   '<div class="small-txt" style="margin-bottom:8px">📦 La différence entre pleines reçues et vides rendues = <b>nouvelles bouteilles gardées</b> (nouvelle consignation) ou <b>bouteilles restituées</b> (remboursement de consignation).</div>'+
   '<label style="display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:700"><input type="checkbox" id="c_cons_auto" checked> Enregistrer dans « Consignations fournisseurs »</label>'+
@@ -1176,16 +1397,16 @@ function openChargement(act){
    st.pleines+=N;st.vides-=M;
    if(st.vides<0){toast('⚠️ Plus de vides rendues que de vides en stock');st.vides=0}
    clampStock(act,sz);
-   addMove(act,sz,'chargement',N,-M,0,'Chargement '+sz,'');
+   addMove(act,sz,'chargement',N,-M,0,'Chargement '+sizeLabel(sz),'');
    logStock(act,'Chargement : +'+N+' pleine(s) '+sz+' reçue(s), −'+M+' vide(s) rendue(s)');
-   if(amt>0){DB.expenses.unshift({id:uid(),ts:Date.now(),date:dISO(),act:act,cat:'Achat gaz',label:'Chargement '+sz+' ×'+N+(M?(' (retour '+M+' vides)'):'')+(sup?(' — '+sup):''),amount:amt,note:(sup?('Dépôt : '+sup+(note?' · ':'')):'')+note,effects:{act:act,size:sz,p:N,v:-M,c:0}})}
+   if(amt>0){DB.expenses.unshift({id:uid(),ts:Date.now(),date:dISO(),act:act,cat:'Achat gaz',label:'Chargement '+sizeLabel(sz)+' ×'+N+(M?(' (retour '+M+' vides)'):'')+(sup?(' — '+sup):''),amount:amt,note:(sup?('Dépôt : '+sup+(note?' · ':'')):'')+note,effects:{act:act,size:sz,p:N,v:-M,c:0}})}
    const diff=N-M;
    const chk=document.getElementById('c_cons_auto');
    if(diff!==0&&chk&&chk.checked){
     const cAmt=Math.round(num(val('c_cons_amt')));
     if(!sup){toast('Écris le nom du fournisseur (important !)');return false}
-    DB.supplierCautions.unshift({id:uid(),ts:Date.now(),date:dISO(),supplier:sup,type:diff>0?'in':'out',amount:cAmt,note:'Via chargement ('+sz+')',act:act,size:sz,qty:Math.abs(diff),state:diff>0?'pleines':'vides',via:'chargement'});
-    addMove(act,sz,diff>0?'consignation-in':'consignation-out',0,0,0,(diff>0?'Nouvelle consignation : +':'Restitution consignation : −')+Math.abs(diff)+' bouteille(s) '+sz,sup);
+    DB.supplierCautions.unshift({id:uid(),ts:Date.now(),date:dISO(),supplier:sup,type:diff>0?'in':'out',amount:cAmt,note:'Via chargement ('+sizeLabel(sz)+')',act:act,size:sz,qty:Math.abs(diff),state:diff>0?'pleines':'vides',via:'chargement'});
+    addMove(act,sz,diff>0?'consignation-in':'consignation-out',0,0,0,(diff>0?'Nouvelle consignation : +':'Restitution consignation : −')+Math.abs(diff)+' bouteille(s) '+sizeLabel(sz),sup);
    }
    save();toast('Chargement enregistré ✓ · '+stockRecap(act,sz));render();return true;
   }});
@@ -1196,10 +1417,13 @@ function calcChargementDiff(){
  if(!el)return;
  const N=Math.max(0,Math.round(num(val('c_p')))),M=Math.max(0,Math.round(num(val('c_v'))));
  const diff=N-M;
+ /* Fournisseur auto : la marque de la ligne choisie (si pas modifié à la main) */
+ const supEl=document.getElementById('c_sup');
+ if(supEl&&supEl.dataset.touched!=='1'){const mq=marqueOf(val('c_size'));if(mq)supEl.value=mq;else if(supEl.dataset.auto==='1')supEl.value='';supEl.dataset.auto=mq?'1':'0'}
  /* Montant auto : pleines reçues × prix d'achat (si pas modifié à la main) */
  const amtEl=document.getElementById('c_amt');
  if(amtEl&&N>0&&amtEl.dataset.touched!=='1'){
-  const sz2=val('c_size');const pa=(DB.settings.prixAchat||{})[sz2]||0;
+  const sz2=val('c_size');const pa=prixAchatOf(sz2);
   amtEl.value=String(Math.round(N*pa));
  }
  if(N===0&&M===0){el.innerHTML='';if(wrap)wrap.style.display='none';return}
@@ -1207,7 +1431,7 @@ function calcChargementDiff(){
  if(curChargAct){
   const sz=val('c_size');const st=stockOf(curChargAct,sz);
   const nP=Math.max(0,st.pleines+N),nV=Math.max(0,st.vides-M);
-  const pa=(DB.settings.prixAchat||{})[sz]||0,avg=bottleAvgCost(curChargAct,sz),sp=salePriceForSize(curChargAct,sz);
+  const pa=prixAchatOf(sz),avg=bottleAvgCost(curChargAct,sz),sp=salePriceForSize(curChargAct,sz);
   const va=Math.round(nP*pa+nV*avg),vv=Math.round(nP*sp+nV*avg);
   stockInfo='<div class="small-txt" style="margin-top:4px">📦 Stock après : Pleines '+st.pleines+' → '+nP+' · Vides '+st.vides+' → '+nV+' · Total : '+(st.pleines+st.vides)+' → '+(nP+nV)+'</div><div class="small-txt">💰 Valeur après : achat <b>'+money(va)+'</b> · vente <b>'+money(vv)+'</b>'+(vv>va?' · marge potentielle <b>'+money(vv-va)+'</b>':'')+'</div>';
  }
@@ -1219,7 +1443,7 @@ function calcChargementDiff(){
 function openAchatVides(act){
  curAchatAct=act;
  openModal('🧺 Achat bouteilles vides — '+esc(actName(act)),
-  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="v_size" onchange="calcAchatConseq()">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>'+
+  '<div class="grid2"><div class="field"><label>Taille</label><select class="inp" id="v_size" onchange="calcAchatConseq()">'+sizes().map(function(sz){return '<option value="'+esc(sz)+'">'+esc(sizeLabel(sz))+'</option>'}).join('')+'</select></div>'+
   '<div class="field"><label>Quantité ★</label><input class="inp" id="v_q" type="text" inputmode="decimal" value="1" oninput="calcAchatConseq()"></div>'+
   '<div class="field"><label>Montant payé (F) ★</label><input class="inp" id="v_amt" type="text" inputmode="decimal" placeholder="0 = pas de dépense"></div></div>'+
   '<div id="v_conseq"></div>',
@@ -1244,18 +1468,19 @@ function calcAchatConseq(){
 function openAjustStock(act,sz){
  curAjustAct=act;curAjustSize=sz;
  const st=stockOf(act,sz);
- openModal('Ajuster le stock — '+sz+' ('+esc(actName(act))+')',
+ openModal('Ajuster le stock — '+sizeLabel(sz)+' ('+esc(actName(act))+')',
   '<div class="hint" style="margin-bottom:4px">Saisis les nombres réels de bouteilles. Utilise ce bouton au tout début, ou après un inventaire.</div>'+
   '<div class="grid2"><div class="field"><label>Pleines</label><input class="inp" id="a_p" type="text" inputmode="decimal" value="'+st.pleines+'" oninput="calcAjustConseq()"></div>'+
-  '<div class="field"><label>Vides</label><input class="inp" id="a_v" type="text" inputmode="decimal" value="'+st.vides+'" oninput="calcAjustConseq()"></div>'+
-  '></div>'+
+  '<div class="field"><label>Vides</label><input class="inp" id="a_v" type="text" inputmode="decimal" value="'+st.vides+'" oninput="calcAjustConseq()"></div></div>'+
   '<div id="a_conseq"></div>',
   {primary:'Enregistrer',onSubmit:function(){
-   const before=stockOf(act,sz);
    const st2=stockOf(act,sz);
+   /* on copie les valeurs AVANT de modifier (stockOf renvoie toujours le même objet) */
+   const bp=st2.pleines,bv=st2.vides;
    const np=Math.max(0,Math.round(num(val('a_p')))),nv=Math.max(0,Math.round(num(val('a_v'))));
+   if(np===bp&&nv===bv){toast('Aucun changement : le stock était déjà à ces valeurs');return true}
    st2.pleines=np;st2.vides=nv;
-   addMove(act,sz,'ajustement',np-before.pleines,nv-before.vides,nc-before.cons,'Ajustement manuel (inventaire)','');
+   addMove(act,sz,'ajustement',np-bp,nv-bv,0,'Ajustement manuel (inventaire)','');
    logStock(act,'Ajustement manuel '+sz+' : '+st2.pleines+' pleines, '+st2.vides+' vides');
    save();toast('Stock mis à jour ✓ · '+stockRecap(act,sz));render();return true;
   }});
@@ -1373,24 +1598,38 @@ function openAddProduct(actId){
   '<div class="field"><label>Nom du produit ★</label><input class="inp" id="pr_name" placeholder="Ex : Recharge B15"></div>'+
   '<div class="field"><label>Prix de vente (F) ★</label><input class="inp" id="pr_price" type="text" inputmode="decimal"></div>'+
   (a.type==='gaz'?'<div class="field"><label>Type</label><select class="inp" id="pr_kind" onchange="prKindChange()"><option value="normal">Vente simple (accessoire…)</option><option value="recharge">Recharge gaz — client apporte sa bouteille vide (pleines −1, vides +1)</option><option value="definitive">Vente bouteille définitive — le client achète la bouteille (pleines −1, sort du stock, pas de consigne)</option></select></div>'+
-   '<div class="field" id="pr_size_wrap" style="display:none"><label>Taille de bouteille</label><select class="inp" id="pr_size">'+sizes().map(function(sz){return '<option value="'+sz+'">'+sz+'</option>'}).join('')+'</select></div>':'')+
-  '<div class="hint">Tu pourras modifier le nom et le prix plus tard dans Réglages.</div>',
+   '<div class="field" id="pr_size_wrap" style="display:none"><label>Taille de bouteille</label><select class="inp" id="pr_size" onchange="prSizeChange()">'+tailles().map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+(linesOf(t).length>1?' ('+linesOf(t).length+' marques)':'')+'</option>'}).join('')+'<option value="__new__">➕ Nouvelle taille…</option></select>'+
+   '<div id="pr_newsize_wrap" style="display:none;margin-top:8px;border:1px dashed var(--line);border-radius:10px;padding:10px"><div class="field"><label>Nom de la nouvelle taille ★</label><input class="inp" id="pr_newsize" placeholder="Ex : B3, B15, B25, B50" maxlength="14"></div>'+
+   '<div class="grid2"><div class="field"><label>Consigne bouteille (F)</label><input class="inp" id="pr_newcons" type="text" inputmode="decimal" placeholder="0"></div><div class="field"><label>Prix d\'achat au dépôt (F)</label><input class="inp" id="pr_newpa" type="text" inputmode="decimal" placeholder="0"></div></div>'+
+   '<div class="small-txt">La nouvelle taille apparaîtra aussitôt dans 📦 Stock.</div></div></div>':'')+
+  '<div class="hint">Tu pourras modifier le nom, le prix et la taille plus tard dans Réglages.</div>',
   {primary:'Ajouter',onSubmit:function(){
    const name=val('pr_name').trim(),price=Math.max(0,num(val('pr_price')));
    if(!name){toast('Écris le nom du produit');return false}
    const p={id:uid(),act:actId,name:name,price:price,kind:'normal'};
    if(a.type==='gaz'){
     p.kind=val('pr_kind');
-    if(p.kind!=='normal'){p.size=val('pr_size')}
+    if(p.kind!=='normal'){
+     let sz=val('pr_size');
+     if(sz==='__new__'){const k=addSize(val('pr_newsize'),'',val('pr_newcons'),val('pr_newpa'));if(!k)return false;sz=tailleOf(k)}
+     if(!sz){toast('Choisis la taille de bouteille');return false}
+     p.size=sz;
+    }
    }
-   DB.products.push(p);save();toast('Produit ajouté ✓');render();return true;
+   DB.products.push(p);save();toast('Produit ajouté ✓'+(p.size?' · taille '+p.size+' visible dans Stock':''));render();return true;
   }});
 }
 function prKindChange(){
  const k=val('pr_kind');
  const w1=$('#pr_size_wrap');
  if(w1)w1.style.display=k==='normal'?'none':'';
- 
+ prSizeChange();
+}
+function prSizeChange(){
+ const w=$('#pr_newsize_wrap');if(!w)return;
+ const isNew=val('pr_size')==='__new__';
+ w.style.display=isNew?'':'none';
+ if(isNew){const el=document.getElementById('pr_newsize');if(el&&typeof el.focus==='function')el.focus()}
 }
 function delCat(i){
  confirmModal('Supprimer la catégorie « '+esc(DB.cats[i])+' » ?','Les dépenses de cette catégorie passeront en « Autre ».',function(){
@@ -1401,13 +1640,37 @@ function delCat(i){
  });
 }
 function addCat(){const v=val('nc').trim();if(!v){toast('Écris le nom');return}DB.cats.push(v);save();render();toast('Catégorie ajoutée ✓')}
-function saveStockSettings(){
- DB.settings.seuilPleines=Math.max(0,Math.round(num(val('sp2'))))||3;
- DB.settings.seuilVides=Math.max(0,Math.round(num(val('sv2'))))||12;
- sizes().forEach(function(sz){const el=document.getElementById('sc_'+sz);if(el)DB.settings.consignes[sz]=Math.max(0,Math.round(num(el.value)))});
+/* Lit les champs de la carte « Tailles de bouteilles & stock » (uniquement ceux présents à l'écran) */
+function collectStockSettings(){
+ if(document.getElementById('sp2'))DB.settings.seuilPleines=Math.max(0,Math.round(num(val('sp2'))))||3;
+ if(document.getElementById('sv2'))DB.settings.seuilVides=Math.max(0,Math.round(num(val('sv2'))))||12;
  if(!DB.settings.prixAchat)DB.settings.prixAchat={};
- sizes().forEach(function(sz){const el=document.getElementById('pa_'+sz);if(el)DB.settings.prixAchat[sz]=Math.max(0,Math.round(num(el.value)))});
- save();toast('Réglages enregistrés ✓');
+ sizes().forEach(function(sz){
+  const c=document.getElementById('sc_'+sz);if(c)DB.settings.consignes[sz]=Math.max(0,Math.round(num(c.value)));
+  const a=document.getElementById('pa_'+sz);if(a)DB.settings.prixAchat[sz]=Math.max(0,Math.round(num(a.value)));
+ });
+}
+function saveStockSettings(){
+ collectStockSettings();
+ save();toast('Réglages enregistrés ✓');render();
+}
+function setProdSize(id,v){
+ const p=prodById(id);if(!p)return;
+ if(v==='__new__'){openAddSizeForProduct(id);return}
+ if(!tailleExists(v)&&!DB.settings.consignes.hasOwnProperty(v)){toast('Taille inconnue');render();return}
+ p.size=v;save();toast('Taille du produit : '+v+' ✓');render();
+}
+function openAddSizeForProduct(pid){
+ openModal('➕ Nouvelle taille de bouteille',
+  '<div class="field"><label>Nom de la taille ★</label><input class="inp" id="sz_name" placeholder="Ex : B3, B6, B12.5, B15, B25, B50" maxlength="14"></div>'+
+  '<div class="grid2"><div class="field"><label>Consigne bouteille (F)</label><input class="inp" id="sz_cons" type="text" inputmode="decimal" placeholder="0"></div>'+
+  '<div class="field"><label>Prix d\'achat au dépôt (F)</label><input class="inp" id="sz_pa" type="text" inputmode="decimal" placeholder="0"></div></div>',
+  {primary:'Ajouter',onSubmit:function(){
+   const key=addSize(val('sz_name'),'',val('sz_cons'),val('sz_pa'));
+   if(!key)return false;
+   const p=prodById(pid);if(p)p.size=tailleOf(key);
+   save();toast('Taille '+tailleOf(key)+' ajoutée ✓ · visible dans Stock');render();return true;
+  }});
 }
 
 /* ============================ SYNCHRONISATION EN LIGNE ============================ */
@@ -1638,7 +1901,7 @@ function buildXlsxBytes(){
    if(DB.products[i])cells+=xlS('B'+rr,DB.products[i].name)+xlN('C'+rr,DB.products[i].price,MONEY);
    if(DB.cats[i])cells+=xlS('D'+rr,DB.cats[i]);
    if(paysL[i])cells+=xlS('F'+rr,paysL[i]);
-   if(szs[i])cells+=xlS('H'+rr,szs[i])+xlN('I'+rr,DB.settings.consignes[szs[i]],MONEY);
+   if(szs[i])cells+=xlS('H'+rr,sizeLabel(szs[i]))+xlN('I'+rr,DB.settings.consignes[szs[i]],MONEY);
    rows.push(xlRow(rr,cells));
   }
   rows.push(xlRow(N+3,xlS('A'+(N+3),'Exporté depuis MISS KOUYATE SHOP le '+fmtD(dISO())+' — DOREGO SERVICES · +225 0502657392')));
@@ -1706,10 +1969,10 @@ function buildXlsxBytes(){
   gazActs().forEach(function(a){
    Object.keys(DB.settings.consignes).forEach(function(sz){
     const st=stockOf(a.id,sz);const rr=2+i;i++;
-    rows.push(xlRow(rr,xlS('A'+rr,a.name)+xlS('B'+rr,sz)+xlN('C'+rr,st.pleines)+xlN('D'+rr,st.vides)));
+    rows.push(xlRow(rr,xlS('A'+rr,a.name)+xlS('B'+rr,sizeLabel(sz))+xlN('C'+rr,st.pleines)+xlN('D'+rr,st.vides)));
    });
   });
-  sheets.push({name:'Stock gaz',rows:rows,cols:xlCols([24,10,10,10])});
+  sheets.push({name:'Stock gaz',rows:rows,cols:xlCols([24,18,10,10])});
  })();
  /* ---- Stock cuisine ---- */
  (function(){
